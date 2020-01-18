@@ -1,0 +1,14 @@
+{
+  "name": "relay",
+  "version": "1.0.0",
+  "description": "Nitro Chatbot",
+  "main": "relay.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Team CS63",
+  "license": "MIT",
+  "devDependencies": {
+    "jasmine": "^3.5.0"
+  }
+}
