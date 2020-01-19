@@ -1,14 +1,16 @@
 {
-  "name": "chatbot",
+  "name": "botkit-nitro-chatbot",
   "version": "1.0.0",
-  "description": "Nitro Chatbot",
-  "main": "chatbot.js",
+  "description": "",
+  "main": "bot.js",
   "scripts": {
+    "start": "node bot.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Team CS63",
-  "license": "MIT",
-  "devDependencies": {
-    "jasmine": "^3.5.0"
+  "dependencies": {
+    "botkit": "^4.6.0",
+    "botkit-plugin-cms": "^1.0.3",
+    "botbuilder-storage-mongodb": "^0.9.5",
+    "dotenv": "^7.0.0"
   }
 }
