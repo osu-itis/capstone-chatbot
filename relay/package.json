@@ -10,7 +10,8 @@
   "author": "Team CS63",
   "license": "MIT",
   "devDependencies": {
-    "jasmine": "^3.5.0"
+    "jasmine": "^3.5.0",
+    "pm2": "^4.2.3"
   },
   "dependencies": {
     "dotenv": "^8.2.0",

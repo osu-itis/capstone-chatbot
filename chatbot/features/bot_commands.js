@@ -46,7 +46,7 @@ module.exports = function(controller) {
             //the available commands, currently placeholder replies
             switch(c_msg.command){
                 case "status":
-                    request(`${process.env.RELAY_URL}`)
+                    //request(`${process.env.RELAY_URL}`)
                     await bot.reply(message, `${user_name} wants to know the status of ${c_msg.target}`);
                     break;
                 case "remove":
