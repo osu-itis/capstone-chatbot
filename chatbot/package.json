@@ -8,15 +8,13 @@
     "test": "node node_modules/jasmine/bin/jasmine.js"
   },
   "dependencies": {
+    "axios": "^0.19.2",
     "botbuilder-storage-mongodb": "^0.9.5",
     "botkit": "^4.6.0",
     "botkit-plugin-cms": "^1.0.3",
     "dotenv": "^7.0.0",
     "jasmine": "^3.5.0",
-    "request": "^2.88.0",
     "pm2": "^4.2.3"
   },
-  "devDependencies": {
-    
-  }
+  "devDependencies": {}
 }
