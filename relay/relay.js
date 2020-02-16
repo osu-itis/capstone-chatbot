@@ -1,25 +1,23 @@
 const express = require('express');
 const app = express();
-const expressip = require('express-ip');
+const bodyParser = require('body-parser');
 require('dotenv').config();
 
-
 const port = process.env.PORT;
-const chatbot_ip = process.env.CHATBOT_IP;
 
-app.use(expressip().getIpInfoMiddleware);
+app.use(bodyParser.json());
 
-app.post('/', (req,res) => {
-    console.log(req.ipInfo);
-    //if(req.ip == chatbot_ip){
-    //    console.log(`${req.ip} and ${chatbot_ip} Match. Everything OK.`);
-        res.status(200);
-        res.send("OK");
-    //} else {
-    //    console.log(`${req.ip} Not recognized.`)
-    //    res.status(404);
-    //    res.send("Nothing here, go away!");
-    //}
+//currently reflects all json bodies sent to /api endpoint
+app.post('/api', (req,res) => {
+    if(req.body) {
+        const apiCall = JSON.parse(JSON.stringify(req.body));
+        console.log(apiCall);
+        res.status(202).send(apiCall);
+    } else {
+        res.status(400).send({
+            "Error": "Body data not found."
+        });
+    }
 });
 
-app.listen(port, () => console.log(`Relay listening on port ${port}!\nAccepting requests from: ${chatbot_ip} only.`));
+app.listen(port, () => console.log(`Relay listening on port ${port}!`));
