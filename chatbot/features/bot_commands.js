@@ -1,4 +1,4 @@
-const request = require('request');
+const axios = require('axios');
 
  /*
     Returns a string with the usage information
@@ -41,19 +41,51 @@ module.exports = function(controller) {
         //parse the message here
         c_msg = consumeText(message.text);
         user_name = message.incoming_message.from.name;
+        user_id = message.incoming_message.from.id;
         //the msg must be exactly 2 terms currently
         if(c_msg.length == 2){
-            //the available commands, currently placeholder replies
             switch(c_msg.command){
                 case "status":
-                    //request(`${process.env.RELAY_URL}`)
-                    await bot.reply(message, `${user_name} wants to know the status of ${c_msg.target}`);
+                    await axios.post(process.env.RELAY_URL+"api", {
+                        name: user_name,
+                        id: user_id,
+                        command: c_msg.command,
+                        target: c_msg.target
+                        })
+                        .then(async (res) => {
+                            await bot.reply(message, "Body: " + JSON.stringify(res.data));
+                        })
+                        .catch(async (error) => {
+                            await bot.reply(message, "Error contacting Relay.");
+                        })                  
                     break;
                 case "remove":
-                    await bot.reply(message, `${user_name} wants to remove ${c_msg.target} from the pool`);
+                    await axios.post(process.env.RELAY_URL+"api", {
+                        name: user_name,
+                        id: user_id,
+                        command: c_msg.command,
+                        target: c_msg.target
+                        })
+                        .then(async (res) => {
+                            await bot.reply(message, "Body: " + JSON.stringify(res.data));
+                        })
+                        .catch(async (error) => {
+                            await bot.reply(message, "Error contacting Relay.");
+                        }) 
                     break;
                 case "add":
-                    await bot.reply(message, `${user_name} wants to add ${c_msg.target} to the pool`);
+                    await axios.post(process.env.RELAY_URL+"api", {
+                        name: user_name,
+                        id: user_id,
+                        command: c_msg.command,
+                        target: c_msg.target
+                        })
+                        .then(async (res) => {
+                            await bot.reply(message, "Body: " + JSON.stringify(res.data));
+                        })
+                        .catch(async (error) => {
+                            await bot.reply(message, "Error contacting Relay.");
+                        }) 
                     break;
                 default:
                     await bot.reply(message, `Command "${c_msg.command}" not recognized.`);
