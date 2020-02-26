@@ -56,7 +56,7 @@ module.exports = function(controller) {
                             await bot.reply(message, "Body: " + JSON.stringify(res.data));
                         })
                         .catch(async (error) => {
-                            await bot.reply(message, "Error contacting Relay.");
+                            await bot.reply(message, "Error contacting Relay."+error);
                         })                  
                     break;
                 case "remove":
