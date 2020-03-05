@@ -1,7 +1,7 @@
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
-const fs = require('fs');
+//const fs = require('fs');
 const axios = require('axios');
 
 require('dotenv').config();
@@ -9,44 +9,26 @@ require('dotenv').config();
 //generate random string:
 //Math.random().toString(36).substring(2,15)+Math.random().toString(36).substring(2,15)
 
-const totp = require('./lib/totp_test_mw')
+//const totp = require('./lib/totp_test_mw')
 
 const port = process.env.PORT || 3001;
 const baseURL = process.env.NETSCALER_URL;
-const username = process.env.NETSCALER_USERNAME;
 
-fs.readFile('.password', 'utf8', (err, contents) => {
-    password = contents;
-});
+//json validation setup
+var { Validator, ValidationError } = require('express-json-validator-middleware');
+var validator = new Validator({allErrors: true});
+var validate = validator.validate;
 
-const loginRoute= "nitro/v1/config/login";
+const schema = require('require-all')(__dirname + '/schema');
+const lib = require('require-all')(__dirname + '/lib');
 
-//GET
-const vserverRoute="nitro/v1/config/lbvserver";
-const vserverQueryParams="?attrs=name,totalservices,activeservices";
-
-//GET
-const vserverStatusRoute="nitro/v1/stat/lbvserver/";//add vserver name after /
-const vserverStatusQueryParam="?statbindings=yes";
-//to get statistics of the bound entities, use statbindings=yes
-
-//POST
-const serviceGroupDisableRoute="nitro/v1/config/servicegroup?action=disable";
-/*
-request payload {"servicegroup":{
-    "servicegroupname":<string_value>,
-    "servername":<string_value>,
-    "port":<integer_value>,
-    "delay":<Double_value>,
-    "graceful":<String_value>
-}}
-*/
 
 app.use(bodyParser.json());
-app.use(totp(process.env.TOTP_KEY, 1));
+app.use(lib.totp_test_mw(process.env.TOTP_KEY, 1));
+//was app.use(totp(process.env.TOTP_KEY, 1));
 
 //currently reflects all json bodies sent to /api endpoint
-app.post('/api', async (req,res) => {
+app.post('/api', validate({body: schema.apiCall }), async (req,res) => {
     var apiCall;
     //console.log(JSON.stringify(req));
     if(req.body) {
@@ -129,6 +111,20 @@ app.post('/api', async (req,res) => {
     }
     //res.status(202).send(apiCall);
 });
+
+app.use( (err, req, res, next) => {
+    let responseData;
+    //sends very specific information about validation failure
+    //may want to change to a general error message in future for security purposes
+    if(err instanceof ValidationError) {
+        console.log(err.message); //logs "espress-jsonschema: Invalid data found"
+        responseData = {
+            statusText: 'Bad Request',
+            validations: err.validationErrors
+        };
+        res.status(400).send(responseData);
+    } else next(err); //pass error if not matched
+})
 
 app.listen(port, () => console.log(`Relay listening on port ${port}!`));
 
