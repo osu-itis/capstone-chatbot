@@ -9,7 +9,7 @@ require('dotenv').config();
 //generate random string:
 //Math.random().toString(36).substring(2,15)+Math.random().toString(36).substring(2,15)
 
-const totp = require('./totp_test_mw')
+const totp = require('./lib/totp_test_mw')
 
 const port = process.env.PORT || 3001;
 const baseURL = process.env.NETSCALER_URL;
