@@ -37,6 +37,7 @@ request payload {"servicegroup":{
     "graceful":<String_value>
 }}
 */
+
 app.use(bodyParser.json());
 
 //currently reflects all json bodies sent to /api endpoint
@@ -62,7 +63,7 @@ app.post('/api', async (req,res) => {
         //console.log(baseURL+loginRoute);
         try{ 
             //console.log(cookie);
-            cookie = await doLogin(apiCall.id);
+            token = await doLogin(apiCall.id);
             //res.status(200).send({"Cookie":cookie});
         } catch(e){ 
             console.log(e);
@@ -72,49 +73,63 @@ app.post('/api', async (req,res) => {
             }); 
         }
         
-            switch(apiCall.command){   
-                case "status":
-                    await axios.post(baseURL+"", {
-                        
-                        })
-                        .then(async (res) => {
-                            //await bot.reply(message, "Body: " + JSON.stringify(res.data));
-                        })
-                        .catch(async (error) => {
-                            //await bot.reply(message, "Error contacting Relay.");
-                        })                  
-                    break;
-                case "remove":
-                    await axios.post(baseURL+"", {
-                        
-                        })
-                        .then(async (res) => {
-                            //await bot.reply(message, "Body: " + JSON.stringify(res.data));
-                        })
-                        .catch(async (error) => {
-                            //await bot.reply(message, "Error contacting Relay.");
-                        }) 
-                    break;
-                case "add":
-                    await axios.post(baseURL+"", {
-                        
-                        })
-                        .then(async (res) => {
-                            //await bot.reply(message, "Body: " + JSON.stringify(res.data));
-                        })
-                        .catch(async (error) => {
-                            //await bot.reply(message, "Error contacting Relay.");
-                        }) 
-                    break;   
+        switch(apiCall.command){
+            case "list":
+                await axios.get(baseURL+vserverStatusRoute+apiCall.target+vserverStatusQueryParam, {
+                    headers: {"Cookie": "NITRO_AUTH_TOKEN="+token}
+                    })
+                    .then(async (response) => {
+                        res.status(200).send(JSON.stringify(response.data));
+                        //await bot.reply(message, "Body: " + JSON.stringify(res.data));
+                    })
+                    .catch(async (error) => {
+                        console.log(error);
+                        //await bot.reply(message, "Error contacting Relay.");
+                    })                  
+                break;   
+            case "status":
+                await axios.post(baseURL+"", {
+                    headers: {Cookie: cookie}
+                    })
+                    .then(async (response) => {
+                        //await bot.reply(message, "Body: " + JSON.stringify(res.data));
+                    })
+                    .catch(async (error) => {
+                        //await bot.reply(message, "Error contacting Relay.");
+                    })                  
+                break;
+            case "remove":
+                await axios.post(baseURL+"", {
+                    
+                    })
+                    .then(async (response) => {
+                        //await bot.reply(message, "Body: " + JSON.stringify(res.data));
+                    })
+                    .catch(async (error) => {
+                        //await bot.reply(message, "Error contacting Relay.");
+                    }) 
+                break;
+            case "add":
+                await axios.post(baseURL+"", {
+                    
+                    })
+                    .then(async (response) => {
+                        //await bot.reply(message, "Body: " + JSON.stringify(res.data));
+                    })
+                    .catch(async (error) => {
+                        //await bot.reply(message, "Error contacting Relay.");
+                    }) 
+                break;   
+        }
     }
-    
-        //res.status(202).send(apiCall);
+    //res.status(202).send(apiCall);
 });
 
 app.listen(port, () => console.log(`Relay listening on port ${port}!`));
 
 async function doLogin(uid){
     cookie = null;
+    token = null;
     await axios.post(baseURL+loginRoute,  {
         "login":{
             "username": username,
@@ -122,11 +137,13 @@ async function doLogin(uid){
         }
     }).then((res) => {
         cookie = res.headers["set-cookie"];
+        token = res.data.sessionid;
         //console.log(cookie);
     }) 
     .catch((error) => {
         console.log(error);
         return error;
     })
-    return cookie;
+    //return cookie;
+    return token;
 }
