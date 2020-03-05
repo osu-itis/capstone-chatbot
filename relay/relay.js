@@ -6,6 +6,10 @@ const axios = require('axios');
 
 require('dotenv').config();
 
+//generate random string:
+//Math.random().toString(36).substring(2,15)+Math.random().toString(36).substring(2,15)
+
+const totp = require('./totp_test_mw')
 
 const port = process.env.PORT || 3001;
 const baseURL = process.env.NETSCALER_URL;
@@ -39,6 +43,7 @@ request payload {"servicegroup":{
 */
 
 app.use(bodyParser.json());
+app.use(totp(process.env.TOTP_KEY, 1));
 
 //currently reflects all json bodies sent to /api endpoint
 app.post('/api', async (req,res) => {

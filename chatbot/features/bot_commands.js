@@ -1,4 +1,6 @@
 const axios = require('axios');
+const totpGen = require('totp-generator');
+const totpKey = process.env.TOTP_KEY;
 
  /*
     Returns a string with the usage information
@@ -29,6 +31,10 @@ Returns an object with
     return c_msg;
  }
 
+function makeTotp(){
+    return totpGen(totpKey);
+}
+
 module.exports = function(controller) {
     // send welcome/usage
     controller.on('conversationUpdate', async(bot, message) => {
@@ -50,7 +56,8 @@ module.exports = function(controller) {
                         name: user_name,
                         id: user_id,
                         command: c_msg.command,
-                        target: c_msg.target
+                        target: c_msg.target,
+                        totp: makeTotp()
                         })
                         .then(async (res) => {
                             await bot.reply(message, "Body: " + JSON.stringify(res.data));
@@ -64,7 +71,8 @@ module.exports = function(controller) {
                         name: user_name,
                         id: user_id,
                         command: c_msg.command,
-                        target: c_msg.target
+                        target: c_msg.target,
+                        totp: makeTotp()
                         })
                         .then(async (res) => {
                             await bot.reply(message, "Body: " + JSON.stringify(res.data));
@@ -78,7 +86,8 @@ module.exports = function(controller) {
                         name: user_name,
                         id: user_id,
                         command: c_msg.command,
-                        target: c_msg.target
+                        target: c_msg.target,
+                        totp: makeTotp()
                         })
                         .then(async (res) => {
                             await bot.reply(message, "Body: " + JSON.stringify(res.data));
@@ -92,7 +101,8 @@ module.exports = function(controller) {
                         name: user_name,
                         id: user_id,
                         command: c_msg.command,
-                        target: c_msg.target
+                        target: c_msg.target,
+                        totp: makeTotp()
                         })
                         .then(async (res) => {
                             await bot.reply(message, "Body: " + JSON.stringify(res.data));
