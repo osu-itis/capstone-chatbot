@@ -45,6 +45,20 @@ module.exports = function(controller) {
         //the msg must be exactly 2 terms currently
         if(c_msg.length == 2){
             switch(c_msg.command){
+                case "list":
+                    await axios.post(process.env.RELAY_URL+"api", {
+                        name: user_name,
+                        id: user_id,
+                        command: c_msg.command,
+                        target: c_msg.target
+                        })
+                        .then(async (res) => {
+                            await bot.reply(message, "Body: " + JSON.stringify(res.data));
+                        })
+                        .catch(async (error) => {
+                            await bot.reply(message, "Error contacting Relay."+error);
+                        })                  
+                    break;
                 case "status":
                     await axios.post(process.env.RELAY_URL+"api", {
                         name: user_name,
@@ -56,7 +70,7 @@ module.exports = function(controller) {
                             await bot.reply(message, "Body: " + JSON.stringify(res.data));
                         })
                         .catch(async (error) => {
-                            await bot.reply(message, "Error contacting Relay.");
+                            await bot.reply(message, "Error contacting Relay."+error);
                         })                  
                     break;
                 case "remove":
