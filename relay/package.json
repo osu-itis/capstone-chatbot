@@ -17,6 +17,7 @@
     "express": "^4.17.1",
     "express-json-validator-middleware": "^2.0.0",
     "jasmine": "^3.5.0",
+    "jssha": "^2.3.1",
     "pm2": "^4.2.3",
     "require-all": "^3.0.0"
   }

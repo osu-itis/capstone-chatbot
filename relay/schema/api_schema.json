@@ -16,9 +16,7 @@
         },
         "command": {
             "type": "string",
-            "pattern": "^(list|status|add|remove)$",
-            "minLength": 3,
-            "maxLength": 6
+            "pattern": "^(listvservers|listservices|countvservers|listservicegroups|enable|disable|disablenow)$"
         },
         "target": {
             "type": "string",

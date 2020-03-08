@@ -1,14 +1,25 @@
 const axios = require('axios');
 
-const defaultUsername = process.env.NETSCALER_USERNAME;
-let defaultPassword;
-fs.readFile('.password', 'utf8', (err, contents) => {
-    defaultPassword = contents;
-});
+const fs = require('fs');
 
-module.exports = (version, baseURL) => {
-    let loginRoute, vserverRoute, vserverQueryParams, vserverStatusRoute, vserverStatusQueryParam, serviceGroupDisableRoute;
-    if (version == "13.0" || "12.0"){
+//const defaultUsername = process.env.NETSCALER_USERNAME;
+//let defaultPassword;
+
+// fs.readFile('.password', 'utf8', (err, contents) => {
+//     defaultPassword = contents;
+// });
+
+module.exports = (baseURL, version) => {
+
+    const defaultUsername = process.env.NETSCALER_USERNAME;
+    let defaultPassword;
+
+    fs.readFile('.password', 'utf8', (err, contents) => {
+        defaultPassword = contents;
+    });
+    let loginRoute, vserverRoute, vserverSGBind, vserverAttrQuery, nameValue, countQueryValue, vserverQueryParams,
+        vserverStatusRoute, vserverServicesQuery, vserverStatusQueryParam, serviceGroupRoute,serviceGroupEnable, serviceGroupDisable;
+    if (version == "13.0" || version == "12.0"){
         loginRoute= "nitro/v1/config/login";
         vserverRoute="nitro/v1/config/lbvserver";//GET
         vserverSGBind="_servicegroup_binding/" //add to vserverRoute
@@ -72,21 +83,26 @@ module.exports = (version, baseURL) => {
             }).catch(async (error) => {
                 console.log(error);
             })
-            return vsList.lbvserver;
+            let output = [];
+            for (i in vsList.lbvserver){
+                output[i] = vsList.lbvserver[i].name;
+            }
+            return output;
         },
         vServerListServices: async (token, target) => {
             let serviceList = null;
-            let url = baseURL+vserverRoute+target+vserverStatusQueryParam+"&"+vserverServicesQuery;
+            let url = baseURL+vserverStatusRoute+target+vserverStatusQueryParam+"&"+vserverServicesQuery;
             console.log(url);
             await axios.get(
                 url, 
                 { headers: {"Cookie": "NITRO_AUTH_TOKEN="+token}
             }).then(async (res) => {
-                serviceList = res.data.lbvserver.servicegroupmember;
+                serviceList = res.data.lbvserver[0].servicegroupmember;
             }).catch(async (error) => {
                 console.log(error);
             })
-            let output;
+            console.log(serviceList);
+            let output = [];
             for (i in serviceList){
                 name = serviceList[i].servicegroupname.split("?");
                 conns = serviceList[i].curclntconnections;
@@ -129,7 +145,7 @@ module.exports = (version, baseURL) => {
         },
         vServerEnableServer: async (token, serviceGroup, server, port) => {
             let statusCode;
-            let url = baseURL+vserverRoute+vserverSGBind+target+serviceGroupEnable;
+            let url = baseURL+serviceGroupRoute+vserverSGBind+target+serviceGroupEnable;
             console.log(url);
             await axios.post(
                 url, 
@@ -150,7 +166,7 @@ module.exports = (version, baseURL) => {
         },
         vServerDisableServerGraceful: async (token, serviceGroup, server, port) => {
             let statusCode;
-            let url = baseURL+vserverRoute+vserverSGBind+target+serviceGroupDisable;
+            let url = baseURL+serviceGroupRoute+vserverSGBind+target+serviceGroupDisable;
             console.log(url);
             await axios.post(
                 url, 
@@ -173,7 +189,7 @@ module.exports = (version, baseURL) => {
         },
         vServerDisableServer: async (token, serviceGroup, server, port) => {
             let statusCode;
-            let url = baseURL+vserverRoute+vserverSGBind+targetserviceGroupDisable;
+            let url = baseURL+serviceGroupRoute+vserverSGBind+targetserviceGroupDisable;
             console.log(url);
             await axios.post(
                 url, 

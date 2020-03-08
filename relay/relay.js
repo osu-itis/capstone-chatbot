@@ -1,7 +1,6 @@
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
-//const fs = require('fs');
 const axios = require('axios');
 
 require('dotenv').config();
@@ -20,22 +19,20 @@ var validator = new Validator({allErrors: true});
 var validate = validator.validate;
 
 const schema = require('require-all')(__dirname + '/schema');
-const lib = require('require-all')(__dirname + '/lib');
+const totp_test_mw = require('./lib/totp_test_mw');
 
+var nitro = require('./lib/nitro')(baseURL, "13.0");
 
 app.use(bodyParser.json());
-app.use(lib.totp_test_mw(process.env.TOTP_KEY, 1));
+app.use(totp_test_mw(process.env.TOTP_KEY, 1));
 //was app.use(totp(process.env.TOTP_KEY, 1));
 
 //currently reflects all json bodies sent to /api endpoint
-app.post('/api', validate({body: schema.apiCall }), async (req,res) => {
+app.post('/api', validate({body: schema.api_schema }), async (req,res) => {
     var apiCall = JSON.parse(JSON.stringify(req.body))
     console.log(JSON.stringify(apiCall));
-    //console.log(baseURL+loginRoute);
-    try{ 
-        //console.log(cookie);
-        token = await doLogin(apiCall.id);
-        //res.status(200).send({"Cookie":cookie});
+    try{
+        token = await nitro.loginUID(apiCall.id);
     } catch(e){ 
         console.log(e);
         res.status(500).send({
@@ -45,56 +42,65 @@ app.post('/api', validate({body: schema.apiCall }), async (req,res) => {
     }
     
     switch(apiCall.command){
-        case "list":
-            await axios.get(baseURL+vserverStatusRoute+apiCall.target+vserverStatusQueryParam, {
-                headers: {"Cookie": "NITRO_AUTH_TOKEN="+token}
-                })
-                .then(async (response) => {
-                    res.status(200).send(JSON.stringify(response.data));
-                    //await bot.reply(message, "Body: " + JSON.stringify(res.data));
-                })
-                .catch(async (error) => {
-                    console.log(error);
-                    //await bot.reply(message, "Error contacting Relay.");
-                })                  
-            break;   
-        case "status":
-            await axios.post(baseURL+"", {
-                headers: {Cookie: cookie}
-                })
-                .then(async (response) => {
-                    //await bot.reply(message, "Body: " + JSON.stringify(res.data));
-                })
-                .catch(async (error) => {
-                    //await bot.reply(message, "Error contacting Relay.");
-                })                  
+        case "listvservers":
+            output = await nitro.vServerListAll(token);
+            if(output != null){
+                res.status(200).send(output);
+            } else {
+                res.status(400).send(output);
+            }
             break;
-        case "remove":
-            await axios.post(baseURL+"", {
-                
-                })
-                .then(async (response) => {
-                    //await bot.reply(message, "Body: " + JSON.stringify(res.data));
-                })
-                .catch(async (error) => {
-                    //await bot.reply(message, "Error contacting Relay.");
-                }) 
+        case "listservices":
+            output = await nitro.vServerListServices(token, apiCall.target);
+            if(output != null){
+                res.status(200).send(output);
+            } else {
+                res.status(400).send(output);
+            }
             break;
-        case "add":
-            await axios.post(baseURL+"", {
-                
-                })
-                .then(async (response) => {
-                    //await bot.reply(message, "Body: " + JSON.stringify(res.data));
-                })
-                .catch(async (error) => {
-                    //await bot.reply(message, "Error contacting Relay.");
-                }) 
-            break;   
+        case "countvservers":
+            output = await nitro.vServerCount(token);
+            if(output != null){
+                res.status(200).send(String(output));
+            } else {
+                res.status(400).send(String(output));
+            }
+            break;
+        case "listservicegroups":
+            output = await nitro.vServerListServiceGroups(token, apiCall.target);
+            if(output != null){
+                res.status(200).send(output);
+            } else {
+                res.status(400).send(output);
+            }
+            break;
+        case "enable":
+            output = await nitro.vServerEnableServer(token, apiCall.target);
+            if(output != null){
+                res.status(200).send(output);
+            } else {
+                res.status(400).send(output);
+            }
+            break;
+        case "disable":
+            output = await nitro.vServerDisableServerGraceful(token, apiCall.target);
+            if(output != null){
+                res.status(200).send(output);
+            } else {
+                res.status(400).send(output);
+            }
+            break;
+        case "disablenow":
+            output = await nitro.vServerDisableServer(token, apiCall.target);
+            if(output != null){
+                res.status(200).send(output);
+            } else {
+                res.status(400).send(output);
+            }
+            break; 
+        }
     }
-}
-    //res.status(202).send(apiCall);
-});
+);
 
 app.use( (err, req, res, next) => {
     let responseData;

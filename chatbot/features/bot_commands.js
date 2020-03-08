@@ -6,7 +6,7 @@ const totpKey = process.env.TOTP_KEY;
     Returns a string with the usage information
  */
  function usage_text() {
-    return "Usage: status [vserver || pool] remove [vserver] add [vserver]"
+    return "Usage: listvservers | listservices | countvservers | listservicegroups | enable | disable | disable now [target]"
  }
 /*
 Accepts a string (msg)
@@ -51,7 +51,13 @@ module.exports = function(controller) {
         //the msg must be exactly 2 terms currently
         if(c_msg.length == 2){
             switch(c_msg.command){
-                case "list":
+                case "listvservers":
+                case "listservices":
+                case "countvservers":
+                case "listservicegroups":
+                case "enable":
+                case "disable":
+                case "disablenow":
                     await axios.post(process.env.RELAY_URL+"api", {
                         name: user_name,
                         id: user_id,
@@ -65,51 +71,6 @@ module.exports = function(controller) {
                         .catch(async (error) => {
                             await bot.reply(message, "Error contacting Relay."+error);
                         })                  
-                    break;
-                case "status":
-                    await axios.post(process.env.RELAY_URL+"api", {
-                        name: user_name,
-                        id: user_id,
-                        command: c_msg.command,
-                        target: c_msg.target,
-                        totp: makeTotp()
-                        })
-                        .then(async (res) => {
-                            await bot.reply(message, "Body: " + JSON.stringify(res.data));
-                        })
-                        .catch(async (error) => {
-                            await bot.reply(message, "Error contacting Relay."+error);
-                        })                  
-                    break;
-                case "remove":
-                    await axios.post(process.env.RELAY_URL+"api", {
-                        name: user_name,
-                        id: user_id,
-                        command: c_msg.command,
-                        target: c_msg.target,
-                        totp: makeTotp()
-                        })
-                        .then(async (res) => {
-                            await bot.reply(message, "Body: " + JSON.stringify(res.data));
-                        })
-                        .catch(async (error) => {
-                            await bot.reply(message, "Error contacting Relay.");
-                        }) 
-                    break;
-                case "add":
-                    await axios.post(process.env.RELAY_URL+"api", {
-                        name: user_name,
-                        id: user_id,
-                        command: c_msg.command,
-                        target: c_msg.target,
-                        totp: makeTotp()
-                        })
-                        .then(async (res) => {
-                            await bot.reply(message, "Body: " + JSON.stringify(res.data));
-                        })
-                        .catch(async (error) => {
-                            await bot.reply(message, "Error contacting Relay.");
-                        }) 
                     break;
                 default:
                     await bot.reply(message, `Command "${c_msg.command}" not recognized.`);
