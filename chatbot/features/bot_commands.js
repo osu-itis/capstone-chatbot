@@ -1,84 +1,70 @@
 const axios = require('axios');
 const totpGen = require('totp-generator');
+
+const msg_lib = require('./lib/msg_lib');
+const log_lib = require('./lib/log_lib');
+
 const totpKey = process.env.TOTP_KEY;
-
- /*
-    Returns a string with the usage information
- */
- function usage_text() {
-    return "Usage: listvservers | listservices | countvservers | listservicegroups | enable | disable | disable now [target]"
- }
-/*
-Accepts a string (msg)
-Returns an object with
- .fulltext = original text
- .length = number of space-delimited terms
- .command = first term
- .target = second term
- .terms = the remaining terms as an array of strings
-*/
- function consumeText(msg) {
-    let c_msg = {}
-    c_msg.fulltext = msg;
-    c_msg.terms = msg.split(" ");
-    c_msg.length = c_msg.terms.length;
-    if(c_msg.terms[0]){
-        c_msg.command = c_msg.terms.shift().toLowerCase();
-    }
-    if(c_msg.terms[0]){
-        c_msg.target = c_msg.terms.shift();
-    }
-    return c_msg;
- }
-
-function makeTotp(){
-    return totpGen(totpKey);
-}
+const relayUrl = process.env.RELAY_URL;
 
 module.exports = function(controller) {
     // send welcome/usage
     controller.on('conversationUpdate', async(bot, message) => {
         user_name = message.incoming_message.from.name;
         await bot.reply(message, `Hello ${user_name}.`);
-        await bot.reply(message, `${usage_text()}`);
+        await bot.reply(message, `${msg_lib.usage()}`);
     });
 
     controller.hears(async (message) => message.text, ['message','direct_message'], async (bot, message) => {
-        //parse the message here
-        c_msg = consumeText(message.text);
+        //parse the message
+        c_msg = msg_lib.consume(message.text);
         user_name = message.incoming_message.from.name;
         user_id = message.incoming_message.from.id;
-        //the msg must be exactly 2 terms currently
-        if(c_msg.length == 2){
-            switch(c_msg.command){
-                case "listvservers":
-                case "listservices":
-                case "countvservers":
-                case "listservicegroups":
-                case "enable":
-                case "disable":
-                case "disablenow":
-                    await axios.post(process.env.RELAY_URL+"api", {
-                        name: user_name,
-                        id: user_id,
-                        command: c_msg.command,
-                        target: c_msg.target,
-                        totp: makeTotp()
-                        })
-                        .then(async (res) => {
-                            await bot.reply(message, "Body: " + JSON.stringify(res.data));
-                        })
-                        .catch(async (error) => {
-                            await bot.reply(message, "Error contacting Relay."+error);
-                        })                  
-                    break;
-                default:
-                    await bot.reply(message, `Command "${c_msg.command}" not recognized.`);
-                    await bot.reply(message, `${usage_text()}`);
-            }
+        //if the command is help, send usage and skip the rest
+        if(c_msg.command == "help"){
+            await bot.reply(message, `${msg_lib.usage()}`);
         } else {
-            await bot.reply(message, `Command: "${c_msg.fulltext}" not recognized.`);
-            await bot.reply(message, `${usage_text()}`);
+            //this validate the message, generating an appropriate error message if not valid
+            valMsg = msg_lib.validate(c_msg);
+            if(valMsg.err){
+                //if we got a bad message, then give the error to the user
+                await bot.reply(message, valMsg.errMsg);
+            } else {
+                //everything is good if we made it here.
+                //format a request for the relay, including a totp for the relay to confirm our identity
+                var request = {
+                    name: user_name,
+                    id: user_id,
+                    command: c_msg.command,
+                    target: c_msg.target,
+                    totp: totpGen(totpKey)
+                    }
+                //send the request with axios
+                await axios.post(relayUrl, request)
+                .then(async (res) => {
+                    //if successful, we log the message to cloudwatchlogs
+                    log_lib.send(log_lib.make(c_msg.fulltext, request, res));
+                    //and forward the response to the user.
+                    //if parsing needs to occur, we would do that here, for now, no parsing.
+                    await bot.reply(message, "Body: " + JSON.stringify(res.data));
+                })
+                .catch(async (error) => {
+                    if(error.response){
+                        //we reach this block if the relay gives us a bad status code.
+                        //we want to log this, and for now, give the body data to the user
+                        log_lib.send(log_lib.make(c_msg.fulltext, request, error.response));
+                        await bot.reply(message, "Body: " + JSON.stringify(error.response.data));
+                    } else if (error.request) {
+                        //request was made, but no reponse received.
+                        //no log here
+                        await bot.reply(message, "Error: Unable to contact server.");
+                    } else {
+                        //something else happened:
+                        //again, no log
+                        await bot.reply(message, "Unexpected Error: "+error.message);
+                    }
+                });
+            }
         }
     });
 }

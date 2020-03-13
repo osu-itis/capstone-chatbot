@@ -16,7 +16,7 @@
         },
         "command": {
             "type": "string",
-            "pattern": "^(listvservers|listservices|countvservers|listservicegroups|enable|disable|disablenow)$"
+            "pattern": "^(list|status|enable|disable|disablenow)$"
         },
         "target": {
             "type": "string",
@@ -31,6 +31,6 @@
             "maxLength": 6
         }
     },
-    "required": ["name", "id", "command", "target", "totp"],
+    "required": ["name", "id", "command", "totp"],
     "additionalProperties": false
 }

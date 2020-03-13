@@ -1,6 +1,5 @@
 const axios = require('axios');
-
-const fs = require('fs');
+//const fs = require('fs');
 
 //const defaultUsername = process.env.NETSCALER_USERNAME;
 //let defaultPassword;
@@ -12,11 +11,8 @@ const fs = require('fs');
 module.exports = (baseURL, version) => {
 
     const defaultUsername = process.env.NETSCALER_USERNAME;
-    let defaultPassword;
+    const defaultPassword = process.env.NETSCALER_PASSWORD;
 
-    fs.readFile('.password', 'utf8', (err, contents) => {
-        defaultPassword = contents;
-    });
     let loginRoute, vserverRoute, vserverSGBind, vserverAttrQuery, nameValue, countQueryValue, vserverQueryParams,
         vserverStatusRoute, vserverServicesQuery, vserverStatusQueryParam, serviceGroupRoute,serviceGroupEnable, serviceGroupDisable;
     if (version == "13.0" || version == "12.0"){
