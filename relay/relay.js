@@ -8,8 +8,6 @@ require('dotenv').config();
 //generate random string:
 //Math.random().toString(36).substring(2,15)+Math.random().toString(36).substring(2,15)
 
-//const totp = require('./lib/totp_test_mw')
-
 const port = process.env.PORT || 3001;
 const baseURL = process.env.NETSCALER_URL;
 
@@ -21,86 +19,124 @@ var validate = validator.validate;
 const schema = require('require-all')(__dirname + '/schema');
 const totp_test_mw = require('./lib/totp_test_mw');
 
-var nitro = require('./lib/nitro')(baseURL, "13.0");
-
 app.use(bodyParser.json());
 app.use(totp_test_mw(process.env.TOTP_KEY, 1));
-//was app.use(totp(process.env.TOTP_KEY, 1));
 
 //currently reflects all json bodies sent to /api endpoint
 app.post('/api', validate({body: schema.api_schema }), async (req,res) => {
     var apiCall = JSON.parse(JSON.stringify(req.body))
     console.log(JSON.stringify(apiCall));
-    try{
-        token = await nitro.loginUID(apiCall.id);
-    } catch(e){ 
-        console.log(e);
-        res.status(500).send({
-            "Error": "Unable to contact server.",
-            "Msg": e
-        }); 
+
+    //make a new nitro with every request, this clears the token;
+    var nitro = require('./lib/nitro')(baseURL);
+
+    //Login using testing route (admin creds)
+    loginRes = await nitro.login();
+    if(loginRes.hasOwnProperty("error") && loginRes.error){
+        console.log(loginRes);
+        res.status(loginRes.status).send({
+            "msg": loginRes.msg,
+            "data": loginRes.data
+        });
     }
-    
-    switch(apiCall.command){
-        case "listvservers":
-            output = await nitro.vServerListAll(token);
-            if(output != null){
-                res.status(200).send(output);
+
+    //controls the flow of calls to the netscalers
+    switch(apiCall.command) {
+        case "list":
+            if(apiCall.hasOwnProperty("target")) {
+                //This will list servers/service groups for a vserver
+                //if vserver exists
+                vServers = await nitro.vServerListAll();
+                for(i in vServers){
+                    if(vServers[i] == apiCall.target) {
+                        //Query and return JSON with service groups and servers within service group
+                        results = await nitro.vServerBoundEntities(apiCall.target);
+                        if(results.hasOwnProperty("error") && results.error){
+                            return res.status(results.status).send({
+                                "msg": results.msg,
+                                "data": results.data
+                            });
+                        } else {
+                            return res.status(200).send(results);
+                        }                        
+                    }
+                }
+                //if vserver doesn't exist, return an error
+                res.status(404).send({
+                    "msg": "vServer not found."
+                });
             } else {
-                res.status(400).send(output);
+                //List all vservers
+                results = await nitro.vServerListAll();
+                if(results.hasOwnProperty("error") && results.error){
+                    res.status(results.status).send({
+                        "msg": results.msg,
+                        "data": results.data
+                    });
+                } else {
+                    res.status(200).send(results);
+                }
             }
             break;
-        case "listservices":
-            output = await nitro.vServerListServices(token, apiCall.target);
-            if(output != null){
-                res.status(200).send(output);
-            } else {
-                res.status(400).send(output);
+        case "status":
+            resources = nitro.resourcesListAll();
+            for(i in resources.vservers){
+                if(resources.vservers == apiCall.target){
+                    //it's a vserver, get all info
+                }
             }
-            break;
-        case "countvservers":
-            output = await nitro.vServerCount(token);
-            if(output != null){
-                res.status(200).send(String(output));
-            } else {
-                res.status(400).send(String(output));
+            for(i in resources.servicegroups){
+                if(resources.servicegroups == apiCall.target){
+                    //it's a servicegroup, get all info
+                }
             }
-            break;
-        case "listservicegroups":
-            output = await nitro.vServerListServiceGroups(token, apiCall.target);
-            if(output != null){
-                res.status(200).send(output);
-            } else {
-                res.status(400).send(output);
+            for(i in resources.services){
+                if(resources.services == apiCall.target){
+                    //it's a service, get all info
+                }
             }
+            for(i in resources.servers){
+                if(resources.servers == apiCall.target){
+                    //it's a server, get all info
+                }
+            }
+            //this will take the target, find it within the vservers/servicegroups/servers, and return their status
+            //This should match all with the same exact name
+
+            //Query to find all resource names
+                //return each matching as an elem of an array, vserver, servicegroup, and service will each have different information connected.
+            
+            //If no matches, then return an error
             break;
         case "enable":
-            output = await nitro.vServerEnableServer(token, apiCall.target);
-            if(output != null){
-                res.status(200).send(output);
-            } else {
-                res.status(400).send(output);
-            }
+            //This will enable a specific service within a service group
+
+            //search to find a service that exactly matches the name
+
+            //If no matches, return error
             break;
         case "disable":
-            output = await nitro.vServerDisableServerGraceful(token, apiCall.target);
-            if(output != null){
-                res.status(200).send(output);
-            } else {
-                res.status(400).send(output);
-            }
+            //This will disable a specific service within a service group
+
+            //search to find a service that exactly matches the name
+
+            //If no matches, return error
             break;
         case "disablenow":
-            output = await nitro.vServerDisableServer(token, apiCall.target);
-            if(output != null){
-                res.status(200).send(output);
-            } else {
-                res.status(400).send(output);
-            }
-            break; 
-        }
+            //this will immediately disable a specific service within a service group
+
+            //search to find a service that exactly matches the name
+
+            //If no matches, return error
+            break;
+        default:
+            //input command does not match one of the available options
+            //This should be unreachable, as the JSON Schema should not allow anything but...
+            //Regardless, place an error message.
     }
-);
+    //if I made it this far, something isn't working or isn't implemented
+    //So we can pass to next(), which should 404
+});
 
 app.use( (err, req, res, next) => {
     let responseData;
@@ -114,6 +150,6 @@ app.use( (err, req, res, next) => {
         };
         res.status(400).send(responseData);
     } else next(err); //pass error if not matched
-})
+});
 
 app.listen(port, () => console.log(`Relay listening on port ${port}!`));

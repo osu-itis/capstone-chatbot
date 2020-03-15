@@ -4,16 +4,17 @@ module.exports = {
     */
      usage: () => {
         return  'Usage:'+'\n\n'+
-        'list'+'\n\n'+
-            '\tList all available resources'+
-        'status [resource-name]'+'\n\n'+
-            '\tDisplay the status of a resource'+
-        'enable [service-name]'+'\n\n'+
-            '\tEnable a service by name'+
-        'disable [service-name]'+
-            '\tGently disable a service by name'+
-        'disablenow [service-name]'+
-            '\tImmediately disable a service by name';
+        '\tlist [optional: vserver name]'+'\n\n'+
+            'List all vServers'+'\n\n'+
+            'Or List all bound resources for a vServer'+'\n\n\n\n'+
+        '\tstatus [resource-name]'+'\n\n'+
+            'Display the status of a resource'+'\n\n\n\n'+
+        '\tenable [server-name]'+'\n\n'+
+            'Enable a server by name'+'\n\n\n\n'+
+        '\tdisable [server-name]'+'\n\n'+
+            'Gently disable a server by name'+'\n\n\n\n'+
+        '\tdisablenow [server-name]'+'\n\n'+
+            'Immediately server a service by name';
      },
      /* Accepts a string (msg)
         Returns an object with
@@ -43,7 +44,7 @@ module.exports = {
         let retVal = {};
         switch(msg.command){
             case "list":
-                if(msg.length > 1){
+                if(msg.length > 2){
                     retVal.error = true;
                     retVal.errMsg = 'Too many arguments for command: "' + msg.command + '".';
                 } else {
@@ -70,5 +71,6 @@ module.exports = {
                 retVal.error = true;
                 retVal.errMsg = 'Command: "' + msg.command +'" not recognized.' 
         }
+        return retVal;
      }
  }

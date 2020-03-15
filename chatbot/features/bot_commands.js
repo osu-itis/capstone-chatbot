@@ -1,8 +1,8 @@
 const axios = require('axios');
 const totpGen = require('totp-generator');
 
-const msg_lib = require('./lib/msg_lib');
-const log_lib = require('./lib/log_lib');
+const msg_lib = require('./lib/msg');
+const log_lib = require('./lib/log');
 
 const totpKey = process.env.TOTP_KEY;
 const relayUrl = process.env.RELAY_URL;
@@ -26,7 +26,7 @@ module.exports = function(controller) {
         } else {
             //this validate the message, generating an appropriate error message if not valid
             valMsg = msg_lib.validate(c_msg);
-            if(valMsg.err){
+            if(valMsg.hasOwnProperty("error") && valMsg.error){
                 //if we got a bad message, then give the error to the user
                 await bot.reply(message, valMsg.errMsg);
             } else {
