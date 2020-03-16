@@ -30,8 +30,8 @@ let app_id, app_pw, contents;
 try {
     contents = fs.readFileSync('.app_creds', 'utf8');
     lines = contents.split('\n');
-    //app_id = lines[0];
-    //app_pw = lines[1];
+    app_id = lines[0];
+    app_pw = lines[1];
 } catch (e) {
     console.log("Unable to read app creds from file: .app_creds");
     console.log(e);
