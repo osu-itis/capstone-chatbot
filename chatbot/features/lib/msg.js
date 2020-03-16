@@ -52,6 +52,15 @@ module.exports = {
                     retVal.msg = msg;
                 }
                 break;
+            case "listall":
+                if(msg.length > 1){
+                    retVali.error = true;
+                    retVal.errMsg = 'Too many arguments for command: "' + msg.command + '".';
+                } else {
+                    retVal.error = false;
+                    retVal.msg = msg;
+                }
+                break;
             case "status":
             case "enable":
             case "disable":

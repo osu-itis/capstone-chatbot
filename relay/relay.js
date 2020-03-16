@@ -42,15 +42,15 @@ app.post('/api', validate({body: schema.api_schema }), async (req,res) => {
 
     //controls the flow of calls to the netscalers
     switch(apiCall.command) {
+
+        //This will list all vservers if no target
+        //Otherwise it will list all bound entites to a vserver
         case "list":
             if(apiCall.hasOwnProperty("target")) {
-                //This will list servers/service groups for a vserver
-                //if vserver exists
-                vServers = await nitro.vServerListAll();
-                for(i in vServers){
-                    if(vServers[i] == apiCall.target) {
-                        //Query and return JSON with service groups and servers within service group
-                        results = await nitro.vServerBoundEntities(apiCall.target);
+                vsList = await nitro.vServerListAllNames();
+                for(i in vsList.vserver){
+                    if(vsList.vserver[i].name == apiCall.target) {
+                        results = await nitro.vServerBoundEntitiesNames(apiCall.target);
                         if(results.hasOwnProperty("error") && results.error){
                             return res.status(results.status).send({
                                 "msg": results.msg,
@@ -67,7 +67,7 @@ app.post('/api', validate({body: schema.api_schema }), async (req,res) => {
                 });
             } else {
                 //List all vservers
-                results = await nitro.vServerListAll();
+                results = await nitro.vServerListAllNames();
                 if(results.hasOwnProperty("error") && results.error){
                     res.status(results.status).send({
                         "msg": results.msg,
@@ -78,70 +78,234 @@ app.post('/api', validate({body: schema.api_schema }), async (req,res) => {
                 }
             }
             break;
+
+        case "listall":
+            results = await nitro.resourcesListAll();
+            if(results.hasOwnProperty("error") && results.error){
+                return res.status(results.status).send({
+                    "msg": results.msg,
+                    "data": results.data
+                });
+            } else {
+                res.status(200).send(results);
+            }
+            break;
+        //This will list the status of a resource by name
         case "status":
-            resources = nitro.resourcesListAll();
-            for(i in resources.vservers){
-                if(resources.vservers == apiCall.target){
-                    //it's a vserver, get all info
+            search = await nitro.findResource(apiCall.target);
+            console.log(search);
+            if(search){
+                switch(search.type){
+                    case "vserver":
+                        results = await nitro.vServerListAllStats();
+                        if(results.hasOwnProperty("error") && results.error){
+                            return res.status(results.status).send({
+                                "msg": results.msg,
+                                "data": results.data
+                            });
+                        } else {
+                            for( i in results.vserver ){
+                                if(apiCall.target == results.vserver[i].name){
+                                    return res.status(200).send(results.vserver[i]);
+                                }
+                            }
+                        } 
+                        break;
+                    case "servicegroup":
+                        results = await nitro.serviceGroupListAllStats();
+                        if(results.hasOwnProperty("error") && results.error){
+                            return res.status(results.status).send({
+                                "msg": results.msg,
+                                "data": results.data
+                            });
+                        } else {
+                            for( i in results.servicegroup ){
+                                if(apiCall.target == results.servicegroup[i].name){
+                                    return res.status(200).send(results.servicegroup[i]);
+                                }
+                            }
+                        } 
+                        break;
+                    case "service":
+                        results = await nitro.serviceListAllStats();
+                        console.log(results);
+                        if(results.hasOwnProperty("error") && results.error){
+                            return res.status(results.status).send({
+                                "msg": results.msg,
+                                "data": results.data
+                            });
+                        } else {
+                            for( i in results.service ){
+                                if(apiCall.target == results.service[i].name){
+                                    return res.status(200).send(results.service[i]);
+                                }
+                            }
+                        } 
+                        break;
+                    case "server":
+                        results = await nitro.serverListAllStats();
+                        if(results.hasOwnProperty("error") && results.error){
+                            return res.status(results.status).send({
+                                "msg": results.msg,
+                                "data": results.data
+                            });
+                        } else {
+                            for( i in results.server ){
+                                if(apiCall.target == results.server[i].name){
+                                    return res.status(200).send(results.server[i]);
+                                }
+                            }
+                        } 
+                        break;
+                    default:
+                        //this should never be reachable
+                        //If search is not false, then it must contain one of thee values
                 }
+            } else {
+                return res.status(404).send({
+                    "msg": "Unable to locate resource",
+                    "data": apiCall.target + " not found among available resources."
+                });
             }
-            for(i in resources.servicegroups){
-                if(resources.servicegroups == apiCall.target){
-                    //it's a servicegroup, get all info
-                }
-            }
-            for(i in resources.services){
-                if(resources.services == apiCall.target){
-                    //it's a service, get all info
-                }
-            }
-            for(i in resources.servers){
-                if(resources.servers == apiCall.target){
-                    //it's a server, get all info
-                }
-            }
-            //this will take the target, find it within the vservers/servicegroups/servers, and return their status
-            //This should match all with the same exact name
-
-            //Query to find all resource names
-                //return each matching as an elem of an array, vserver, servicegroup, and service will each have different information connected.
-            
-            //If no matches, then return an error
             break;
+
+        //This will enable a resource by name 
+        //If no matches, return error
         case "enable":
-            //This will enable a specific service within a service group
-
-            //search to find a service that exactly matches the name
-
-            //If no matches, return error
+            search = await nitro.findResource(apiCall.target);
+            if(search){
+                switch(search.type){
+                    case "vserver":
+                        result = await nitro.vServerEnable(apiCall.target);
+                        break;
+                    case "servicegroup":
+                        result = await nitro.serviceGroupEnable(apiCall.target);
+                        break;
+                    case "service":
+                        result = await nitro.serviceEnable(apiCall.target);
+                        break;
+                    case "server":
+                        result = await nitro.serverEnable(apiCall.target);
+                        break;
+                    default:
+                        result = {
+                            "error": true,
+                            "status": 500,
+                            "msg": "Internal Server Error",
+                            "data": apiCall.target + "unmatched within resource list."
+                        };
+                }
+                if(result.hasOwnProperty("error") && result.error){
+                    return res.status(result.status).send({
+                        "msg": result.msg,
+                        "data": result.data
+                    });
+                } else {
+                    return res.status(200).send(result);
+                }
+            } else {
+                return res.status(404).send({
+                    "msg": "Unabled to locate resource",
+                    "data": apiCall.target + " not found among available resources."
+                });
+            }
             break;
+
+        //This will disable a resource by name
+        //If no matches, return error
         case "disable":
-            //This will disable a specific service within a service group
-
-            //search to find a service that exactly matches the name
-
-            //If no matches, return error
+            search = await nitro.findResource(apiCall.target);
+            console.log(search);
+            if(search){
+                switch(search.type){
+                    case "vserver":
+                        result = await nitro.vServerDisable(apiCall.target);
+                        break;
+                    case "servicegroup":
+                        result = await nitro.serviceGroupDisable(apiCall.target, true);
+                        break;
+                    case "service":
+                        result = await nitro.serviceDisable(apiCall.target, true);
+                        break;
+                    case "server":
+                        result = await nitro.serverDisable(apiCall.target, true);
+                        break;
+                    default:
+                        result = {
+                            "error": true,
+                            "status": 500,
+                            "msg": "Internal Server Error",
+                            "data": apiCall.target + "unmatched within resource list."
+                        };
+                }
+                if(result.hasOwnProperty("error") && result.error){
+                    return res.status(result.status).send({
+                        "msg": result.msg,
+                        "data": result.data
+                    });
+                } else {
+                    return res.status(200).send(result);
+                }
+            } else {
+                return res.status(404).send({
+                    "msg": "Unabled to locate resource",
+                    "data": apiCall.target + " not found among available resources."
+                });
+            }
             break;
+
+        //This will immediately (non-gracefully) disable a resource by name
+        //If no matches, return error
         case "disablenow":
-            //this will immediately disable a specific service within a service group
-
-            //search to find a service that exactly matches the name
-
-            //If no matches, return error
+            search = await nitro.findResource(apiCall.target);
+            if(search){
+                switch(search.type){
+                    case "vserver":
+                        result = await nitro.vServerDisable(apiCall.target);
+                        break;
+                    case "servicegroup":
+                        result = await nitro.serviceGroupDisable(apiCall.target, false);
+                        break;
+                    case "service":
+                        result = await nitro.serviceDisable(apiCall.target, false);
+                        break;
+                    case "server":
+                        result = await nitro.serverDisable(apiCall.target, false);
+                        break;
+                    default:
+                        result = {
+                            "error": true,
+                            "status": 500,
+                            "msg": "Internal Server Error",
+                            "data": apiCall.target + "unmatched within resource list."
+                        };
+                }
+                if(result.hasOwnProperty("error") && result.error){
+                    return res.status(result.status).send({
+                        "msg": result.msg,
+                        "data": result.data
+                    });
+                } else {
+                    return res.status(200).send(results);
+                }
+            } else {
+                return res.status(404).send({
+                    "msg": "Unabled to locate resource",
+                    "data": apiCall.target + " not found among available resources."
+                });
+            }
             break;
+
         default:
             //input command does not match one of the available options
-            //This should be unreachable, as the JSON Schema should not allow anything but...
-            //Regardless, place an error message.
+            //This should be unreachable, as the JSON Schema disallows alternatives
     }
-    //if I made it this far, something isn't working or isn't implemented
-    //So we can pass to next(), which should 404
 });
 
 app.use( (err, req, res, next) => {
     let responseData;
     //sends very specific information about validation failure
-    //may want to change to a general error message in future for security purposes
+    //may want to change to a more general error message in future for security purposes
     if(err instanceof ValidationError) {
         console.log(err.message); //logs "espress-jsonschema: Invalid data found"
         responseData = {

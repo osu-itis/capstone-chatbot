@@ -53,7 +53,7 @@ module.exports = function(controller) {
                         //we reach this block if the relay gives us a bad status code.
                         //we want to log this, and for now, give the body data to the user
                         log_lib.send(log_lib.make(c_msg.fulltext, request, error.response));
-                        await bot.reply(message, "Body: " + JSON.stringify(error.response.data));
+                        await bot.reply(message, "Error: "+error.response.status+ " " + error.response.statusText);
                     } else if (error.request) {
                         //request was made, but no reponse received.
                         //no log here

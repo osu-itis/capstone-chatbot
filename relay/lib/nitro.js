@@ -1,5 +1,8 @@
 const axios = require('axios');
-
+const nitroUtil = require('./nitro_util');
+const nitroError = require('./nitro_error');
+const nitroList = require('./nitro_list');
+const nitroListAll = require('./nitro_list_all');
 
 //const fs = require('fs');
 //const defaultUsername = process.env.NETSCALER_USERNAME;
@@ -8,36 +11,6 @@ const axios = require('axios');
 //     defaultPassword = contents;
 // });
 
-
-//This function defines the object each function will return if it encounters an error
-// .error is always to to true for testing from the calling program
-// .status is the http status code, 503 if the load balancer does not reply, and 500 if a program error occurs
-// .msg contains some text about the error
-// .data may contain additional data or a message (503 has no attached data)
-function procError(error){
-    if(error.response){
-        return {
-            "error": true,
-            "status": error.status,
-            "msg": error.statustext,
-            "data": error.data
-        }
-    } else if (error.request) {
-        return {
-            "error": true,
-            "status": 503,
-            "msg": "Unable to contact load balancer"
-        }
-    } else {
-        return {
-            "error": true,
-            "status": 500,
-            "msg": "Internal error: Try again or contact administrator",
-            "data": error.message
-        }
-    }
-}
-//baseURL+serviceGroupRoute+vserverSGBind+target+serviceGroupDisable;
 module.exports = (baseURL) => {
 
     //This should be used for testing purposes only
@@ -72,7 +45,7 @@ module.exports = (baseURL) => {
                 token = res.data.sessionid;
             }) 
             .catch((error) => {
-                output = procError(error);
+                output = nitroError(error);
             });
             if (output) return output;
             else return true;
@@ -94,135 +67,62 @@ module.exports = (baseURL) => {
                 token = res.data.sessionid;
             }) 
             .catch((error) => {
-                output = procError(error);
+                output = nitroError(error);
             });
             if (output) return output;
             else return true;
         },
+        //This function runs all the list commands, and returns them
         resourcesListAll: async () => {
-            vservers = await nitro.vServerListAll();
-            servicegroups = await nitro.serviceGroupListAll();
-            services = await nitro.serviceListAll();
-            servers = await nitro.serversListAll();
-            output = {
-                vservers:[],
-                servicegroups:[],
-                services:[],
-                servers:[]
-            };
-            for (i in vservers){
-                output.vservers.push(vservers[i].name);
+            return await nitroListAll(baseURL, token);
+        },
+        //This function runs all the list commands, and returns them
+        findResource: async (target) => {
+            resources = nitroUtil.flattenResAll(await nitroListAll(baseURL, token));
+            //console.log(resources);
+            for(i in resources){
+                if(target == resources[i].name){
+                    return {
+                        "name": resources[i].name,
+                        "type": resources[i].type
+                    };
+                }
             }
-            for (i in servicegroups){
-                output.servicegroups.push(servicegroups[i].name);
-            }
-            for (i in services){
-                output.services.push(services[i].name);
-            }
-            for (i in servers){
-                output.servers.push(servers[i].name);
-            }
-            return output;
+            return false;
         },
 
-        //GET /nitro/v1/config/lbvserver?attrs=name
-        //returns a list of all vservers
-        vServerListAll: async () => {
-            let output = {};
-            let vsList = null;
-            let url = baseURL+"/nitro/v1/config/lbvserver?attrs=name";
-            console.log(url);
-            await axios.get(
-                url, 
-                { headers: {"Cookie": "NITRO_AUTH_TOKEN="+token}
-            }).then(async (res) => {
-                vsList = res.data;
-                output.vserver = [];
-                for (i in vsList.lbvserver){
-                    output.vserver.push("name": vsList.lbvserver[i].name);
-                }
-            }).catch(async (error) => {
-                output = procError(error);
-            });
-            return output;
+        vServerListAllStats: async() => {
+            return await nitroList.vServerListAllStats(baseURL,token);
         },
-        // GET /nitro/v1/config/servicegroup?attrs=name,numofconnections,servicetype
-        // returns a list of all service groups and the number of connections
-        serviceGroupListAll: async () => {
-            let output = {};
-            let sgList = null;
-            let url = baseURL+"/nitro/v1/config/servicegroup?attrs=name,numofconnections";
-            console.log(url);
-            await axios.get(
-                url, 
-                { headers: {"Cookie": "NITRO_AUTH_TOKEN="+token}
-            }).then(async (res) => {
-                sgList = res.data;
-                output.servicegroup = [];
-                for (i in sgList.servicegroup){
-                    output.servicegroup.push({
-                        "name": vsList.servicegroup[i].name,
-                        "connections": vsList.servicegroup[i].numofconnections
-                    });
-                }
-            }).catch(async (error) => {
-                output = procError(error);
-            });
-            return output;
+
+        vServerListAllNames: async() => {
+            return await nitroList.vServerListAllNames(baseURL,token);
         },
-        // GET /nitro/v1/config/server?args=internal:false&attrs=name,ipaddress,state
-        // returns a list of all servers, their ip address, and their current state
-        serverListAll: async () => {
-            let output = {};
-            let svrList = null;
-            let url = baseURL+"/nitro/v1/config/server?args=internal:false&attrs=name,ipaddress,state";
-            console.log(url);
-            await axios.get(
-                url, 
-                { headers: {"Cookie": "NITRO_AUTH_TOKEN="+token}
-            }).then(async (res) => {
-                svrList = res.data;
-                output.server = [];
-                for (i in svrList.server){
-                    output.server.push({
-                        "name": svrList.server[i].name,
-                        "ip": svrList.server[i].ipaddress,
-                        "state": svrList.server[i].state
-                    });
-                }
-            }).catch(async (error) => {
-                output = procError(error);
-            });
-            return output;
+
+        serviceGroupListAllStats: async() => {
+            return await nitroList.serviceGroupListAllStats(baseURL,token);
         },
-        // GET /nitro/v1/config/service?args=internal:false&attrs=name,numofconnections,servername,ipaddress,port,svrstate
-        // returns a list of all services, the number of connections, their associated server name, ip, port and the server state
-        serviceListAll: async () => {
-            let output = {};
-            let svcList = null;
-            let url = baseURL+"/nitro/v1/config/service?args=internal:false&attrs=name,numofconnections,servername,ipaddress,port,svrstate";
-            console.log(url);
-            await axios.get(
-                url, 
-                { headers: {"Cookie": "NITRO_AUTH_TOKEN="+token}
-            }).then(async (res) => {
-                svcList = res.data;
-                output.service = [];
-                for (i in svcList.server){
-                    output.service.push({
-                        "name": svcList.server[i].name,
-                        "connections": svcList.server[i].numofconnections,
-                        "servername": svcList.server[i].servername,
-                        "ip": svcList.server[i].ipaddress,
-                        "port": svcList.server[i].port,
-                        "state": svcList.server[i].svrstate
-                    });
-                }
-            }).catch(async (error) => {
-                output = procError(error);
-            });
-            return output;
+
+        serviceGroupListAllNames: async() => {
+            return await nitroList.serviceGroupListAllNames(baseURL,token);
         },
+
+        serviceListAllStats: async() => {
+            return await nitroList.serviceListAllStats(baseURL,token);
+        },
+
+        serviceListAllNames: async() => {
+            return await nitroList.serviceListAllNames(baseURL,token);
+        },
+
+        serverListAllStats: async() => {
+            return await nitroList.serverListAllStats(baseURL,token);
+        },
+
+        serverListAllNames: async() => {
+            return await nitroList.serverListAllNames(baseURL,token);
+        },
+        
         // GET /nitro/v1/stat/lbvserver/TARGET?statbindings=yes&attrs=servicegroupname,primaryipaddress,primaryport,state,curclntconnections,cursrvrconnections,svrestablishedconn,name
         //returns all information for all bound entites for a given vserver
         vServerBoundEntities: async (target) => {
@@ -243,7 +143,6 @@ module.exports = (baseURL) => {
                 output.port=entList.primaryport;
                 output.state=entList.state;
                 output.clientconnections=entList.curclntconnections;
-                output.name=entList.name;
                 output.sgmem = [];
                 for (i in entList.servicegroupmember){
                     name = entList.servicegroupmember[i].servicegroupname.split("?");
@@ -271,7 +170,40 @@ module.exports = (baseURL) => {
                     });
                 }
             }).catch(async (error) => {
-                output = procError(error);
+                output = nitroError(error);
+            });
+            return output;
+        },
+        // GET /nitro/v1/stat/lbvserver/TARGET?statbindings=yes&attrs=servicegroupname,name
+        //returns all information for all bound entites for a given vserver
+        vServerBoundEntitiesNames: async (target) => {
+            let output = {};
+            let entList = null;
+            let url = baseURL+"/nitro/v1/stat/lbvserver/"+target+"?statbindings=yes&attrs=servicegroupname,name";
+            console.log(url);
+            await axios.get(
+                url, 
+                { headers: {"Cookie": "NITRO_AUTH_TOKEN="+token}
+            }).then(async (res) => {
+                //assuming only 1 entry here, since it's a specific search
+                entList = res.data.lbvserver[0];
+                output.name=entList.name;
+                output.sgmem = [];
+                for (i in entList.servicegroupmember){
+                    name = entList.servicegroupmember[i].servicegroupname.split("?");
+                    output.sgmem.push({
+                        "servicegroup": name[0],
+                        "servername": name[1]
+                    });
+                }
+                output.service = [];
+                for (i in entList.service){
+                    output.service.push({
+                        "name": entList.service[i].name
+                    });
+                }
+            }).catch(async (error) => {
+                output = nitroError(error);
             });
             return output;
         },
@@ -283,21 +215,21 @@ module.exports = (baseURL) => {
             console.log(url);
             await axios.post(
                 url, 
-                { 
-                    headers: {"Cookie": "NITRO_AUTH_TOKEN="+token},
+                {
                     "servicegroup":{
                         "servicegroupname": serviceGroup,
                         "servername":server,
                         "port":port
                     }
-                }
+                },
+                {headers: {"Cookie": "NITRO_AUTH_TOKEN="+token}}
             ).then(async (res) => {
                 output = {
                     "status": res.status,
                     "msg": res.statustext
                 };
             }).catch(async (error) => {
-                output = procError(error);
+                output = nitroError(error);
             });
             return output;
         },
@@ -309,8 +241,7 @@ module.exports = (baseURL) => {
             console.log(url);
             await axios.post(
                 url, 
-                { 
-                    headers: {"Cookie": "NITRO_AUTH_TOKEN="+token},
+                {
                     "servicegroup":{
                         "servicegroupname": serviceGroup,
                         "servername":server,
@@ -318,14 +249,15 @@ module.exports = (baseURL) => {
                         "delay":0,
                         "graceful":(graceful ? "yes" : "no")
                     }
-                }
+                },
+                {headers: {"Cookie": "NITRO_AUTH_TOKEN="+token}}
             ).then(async (res) => {
                 output = {
                     "status": res.status,
                     "msg": res.statustext
                 };
             }).catch(async (error) => {
-                output = procError(error);
+                output = nitroError(error);
             });
             return output;
         },
@@ -337,19 +269,19 @@ module.exports = (baseURL) => {
             console.log(url);
             await axios.post(
                 url, 
-                { 
-                    headers: {"Cookie": "NITRO_AUTH_TOKEN="+token},
+                {
                     "service":{
                         "name": target
                     }
-                }
+                },
+                {headers: {"Cookie": "NITRO_AUTH_TOKEN="+token}}
             ).then(async (res) => {
                 output = {
                     "status": res.status,
                     "msg": res.statustext
                 };
             }).catch(async (error) => {
-                output = procError(error);
+                output = nitroError(error);
             });
             return output;
         },
@@ -361,21 +293,21 @@ module.exports = (baseURL) => {
             console.log(url);
             await axios.post(
                 url, 
-                { 
-                    headers: {"Cookie": "NITRO_AUTH_TOKEN="+token},
+                {
                     "service":{
                         "name": target,
                         "delay":0,
                         "graceful":(graceful ? "yes" : "no")
                     }
-                }
+                },
+                {headers: {"Cookie": "NITRO_AUTH_TOKEN="+token}}
             ).then(async (res) => {
                 output = {
                     "status": res.status,
                     "msg": res.statustext
                 };
             }).catch(async (error) => {
-                output = procError(error);
+                output = nitroError(error);
             });
             return output;
         },
@@ -387,19 +319,19 @@ module.exports = (baseURL) => {
             console.log(url);
             await axios.post(
                 url, 
-                { 
-                    headers: {"Cookie": "NITRO_AUTH_TOKEN="+token},
+                {
                     "server":{
                         "name": target
                     }
-                }
+                },
+                {headers: {"Cookie": "NITRO_AUTH_TOKEN="+token}}
             ).then(async (res) => {
                 output = {
                     "status": res.status,
                     "msg": res.statustext
                 };
             }).catch(async (error) => {
-                output = procError(error);
+                output = nitroError(error);
             });
             return output;
         },
@@ -411,21 +343,120 @@ module.exports = (baseURL) => {
             console.log(url);
             await axios.post(
                 url, 
-                { 
-                    headers: {"Cookie": "NITRO_AUTH_TOKEN="+token},
+                {
                     "server":{
                         "name": target,
                         "delay":0,
                         "graceful":(graceful ? "yes" : "no")
                     }
-                }
+                },
+                {headers: {"Cookie": "NITRO_AUTH_TOKEN="+token}}
             ).then(async (res) => {
                 output = {
                     "status": res.status,
                     "msg": res.statustext
                 };
             }).catch(async (error) => {
-                output = procError(error);
+                output = nitroError(error);
+            });
+            return output;
+        },
+        // POST nitro/v1/config/vserver?action=enable
+        // Enables a vserver
+        vServerEnable: async (target) => {
+            let output = {};
+            let url = baseURL+"/nitro/v1/config/vserver?action=enable";
+            console.log(url);
+            await axios.post(
+                url, 
+                {
+                    "vserver":{
+                        "name": target
+                    }
+                },
+                {headers: {"Cookie": "NITRO_AUTH_TOKEN="+token}}
+            ).then(async (res) => {
+                output = {
+                    "status": res.status,
+                    "msg": res.statustext
+                };
+            }).catch(async (error) => {
+                output = nitroError(error);
+            });
+            return output;
+        },
+        // POST nitro/v1/config/vserver?action=disable
+        // Disable a vserver
+        vServerDisable: async (target) => {
+            let output = {};
+            let url = baseURL+"/nitro/v1/config/vserver?action=disable";
+            console.log(url);
+            await axios.post(
+                url, 
+                {
+                    "vserver":{
+                        "name": target,
+                    }
+                },
+                {headers: {"Cookie": "NITRO_AUTH_TOKEN="+token}}
+            ).then(async (res) => {
+                output = {
+                    "status": res.status,
+                    "msg": res.statustext
+                };
+            }).catch(async (error) => {
+                console.log(error);
+                output = nitroError(error);
+            });
+            return output;
+        },
+        // POST nitro/v1/config/vserver?action=enable
+        // Enables a vserver
+        serviceGroupEnable: async (target) => {
+            let output = {};
+            let url = baseURL+"/nitro/v1/config/servicegroup?action=enable";
+            console.log(url);
+            await axios.post(
+                url, 
+                {
+                    "servicegroup":{
+                        "servicegroupname": target
+                    }
+                },
+                {headers: {"Cookie": "NITRO_AUTH_TOKEN="+token}}
+            ).then(async (res) => {
+                output = {
+                    "status": res.status,
+                    "msg": res.statustext
+                };
+            }).catch(async (error) => {
+                output = nitroError(error);
+            });
+            return output;
+        },
+        // POST nitro/v1/config/vserver?action=disable
+        // Disable a vserver
+        serviceGroupDisable: async (target, graceful) => {
+            let output = {};
+            let url = baseURL+"/nitro/v1/config/servicegroup?action=disable";
+            console.log(url);
+            await axios.post(
+                url, 
+                {
+                    "servicegroup":{
+                        "servicegroupname": target,
+                        "delay":0,
+                        "graceful":(graceful ? "yes" : "no")
+                    }
+                },
+                {headers: {"Cookie": "NITRO_AUTH_TOKEN="+token}}
+            ).then(async (res) => {
+                output = {
+                    "status": res.status,
+                    "msg": res.statustext
+                };
+            }).catch(async (error) => {
+                output = nitroError(error);
             });
             return output;
         }
