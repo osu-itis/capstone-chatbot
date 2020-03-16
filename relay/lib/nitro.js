@@ -79,7 +79,6 @@ module.exports = (baseURL) => {
         //This function runs all the list commands, and returns them
         findResource: async (target) => {
             resources = nitroUtil.flattenResAll(await nitroListAll(baseURL, token));
-            //console.log(resources);
             for(i in resources){
                 if(target == resources[i].name){
                     return {
@@ -405,7 +404,6 @@ module.exports = (baseURL) => {
                     "msg": res.statustext
                 };
             }).catch(async (error) => {
-                console.log(error);
                 output = nitroError(error);
             });
             return output;

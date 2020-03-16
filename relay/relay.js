@@ -48,23 +48,12 @@ app.post('/api', validate({body: schema.api_schema }), async (req,res) => {
         //login with credentials from
         loginRes = await nitro.loginWithCreds(creds.username, creds.password);
         if(loginRes.hasOwnProperty("error") && loginRes.error){
-            console.log(loginRes);
             return res.status(loginRes.status).send({
                 "msg": loginRes.msg,
                 "data": loginRes.data
             });
         }
     }
-
-    // //Login using testing route (admin creds)
-    // loginRes = await nitro.login();
-    // if(loginRes.hasOwnProperty("error") && loginRes.error){
-    //     console.log(loginRes);
-    //     res.status(loginRes.status).send({
-    //         "msg": loginRes.msg,
-    //         "data": loginRes.data
-    //     });
-    // }
 
     //controls the flow of calls to the netscalers
     switch(apiCall.command) {
@@ -119,7 +108,6 @@ app.post('/api', validate({body: schema.api_schema }), async (req,res) => {
         //This will list the status of a resource by name
         case "status":
             search = await nitro.findResource(apiCall.target);
-            console.log(search);
             if(search){
                 switch(search.type){
                     case "vserver":
@@ -132,6 +120,7 @@ app.post('/api', validate({body: schema.api_schema }), async (req,res) => {
                         } else {
                             for( i in results.vserver ){
                                 if(apiCall.target == results.vserver[i].name){
+                                    results.vserver[i].type = "vserver";
                                     return res.status(200).send(results.vserver[i]);
                                 }
                             }
@@ -147,6 +136,7 @@ app.post('/api', validate({body: schema.api_schema }), async (req,res) => {
                         } else {
                             for( i in results.servicegroup ){
                                 if(apiCall.target == results.servicegroup[i].name){
+                                    results.servicegroup[i].type = "servicegroup";
                                     return res.status(200).send(results.servicegroup[i]);
                                 }
                             }
@@ -154,7 +144,6 @@ app.post('/api', validate({body: schema.api_schema }), async (req,res) => {
                         break;
                     case "service":
                         results = await nitro.serviceListAllStats();
-                        console.log(results);
                         if(results.hasOwnProperty("error") && results.error){
                             return res.status(results.status).send({
                                 "msg": results.msg,
@@ -163,6 +152,7 @@ app.post('/api', validate({body: schema.api_schema }), async (req,res) => {
                         } else {
                             for( i in results.service ){
                                 if(apiCall.target == results.service[i].name){
+                                    results.service[i].type = "service";
                                     return res.status(200).send(results.service[i]);
                                 }
                             }
@@ -178,6 +168,7 @@ app.post('/api', validate({body: schema.api_schema }), async (req,res) => {
                         } else {
                             for( i in results.server ){
                                 if(apiCall.target == results.server[i].name){
+                                    results.server[i].type = "server";
                                     return res.status(200).send(results.server[i]);
                                 }
                             }
@@ -241,7 +232,6 @@ app.post('/api', validate({body: schema.api_schema }), async (req,res) => {
         //If no matches, return error
         case "disable":
             search = await nitro.findResource(apiCall.target);
-            console.log(search);
             if(search){
                 switch(search.type){
                     case "vserver":
