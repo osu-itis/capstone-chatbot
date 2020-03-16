@@ -93,7 +93,6 @@ module.exports = {
             { headers: {"Cookie": "NITRO_AUTH_TOKEN="+token}
         }).then(async (res) => {
             sgList = res.data;
-            console.log(sgList);
             output.servicegroup = [];
             for (i in sgList.servicegroup){
                 output.servicegroup.push({

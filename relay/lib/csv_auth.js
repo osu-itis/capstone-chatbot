@@ -1,5 +1,4 @@
 fs = require('fs');
-parse = require('csv-parse');
 
 module.exports = async (uuid) => {
     try {

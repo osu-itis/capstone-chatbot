@@ -3,9 +3,11 @@ const totpGen = require('totp-generator');
 
 const msg_lib = require('./lib/msg');
 const log_lib = require('./lib/log');
+const pp = require('./lib/prettyprint');
 
 const totpKey = process.env.TOTP_KEY;
 const relayUrl = process.env.RELAY_URL;
+
 
 module.exports = function(controller) {
     // send welcome/usage
@@ -54,7 +56,7 @@ module.exports = function(controller) {
                     log_lib.send(log_lib.make(c_msg.fulltext, request, res));
                     //and forward the response to the user.
                     //if parsing needs to occur, we would do that here, for now, no parsing.
-                    await bot.reply(message, "Body: " + JSON.stringify(res.data));
+                    await bot.reply(message, pp(c_msg, res.data));
                 })
                 .catch(async (error) => {
                     if(error.response){

@@ -26,7 +26,6 @@ module.exports = {
             if (err){
                 console.log(err, err.stack);
             } else {
-                console.log(data.logStreams);
                 for(index in data.logStreams){
                     if(data.logStreams[index].logStreamName === cwLogStream){
                         params.sequenceToken = data.logStreams[index].uploadSequenceToken;
@@ -34,8 +33,7 @@ module.exports = {
                             if (err){
                                 console.log(err, err.stack);
                             } else {
-                                //console.log(data);
-                                //Everything worked, log event created
+                                //It worked.
                             }
                         });
                     }
