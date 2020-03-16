@@ -4,17 +4,24 @@ module.exports = {
     */
      usage: () => {
         return  'Usage:'+'\n\n'+
-        '\tlist [optional: vserver name]'+'\n\n'+
+        '\thelp'+'\n\n'+
+            'Display this usage message'+'\n\n'+
+        '\tlist'+'\n\n'+
             'List all vServers'+'\n\n'+
-            'Or List all bound resources for a vServer'+'\n\n\n\n'+
-        '\tstatus [resource-name]'+'\n\n'+
-            'Display the status of a resource'+'\n\n\n\n'+
-        '\tenable [server-name]'+'\n\n'+
-            'Enable a server by name'+'\n\n\n\n'+
-        '\tdisable [server-name]'+'\n\n'+
-            'Gently disable a server by name'+'\n\n\n\n'+
-        '\tdisablenow [server-name]'+'\n\n'+
-            'Immediately server a service by name';
+        '\tlist [vserver]'+'\n\n'+
+            'List all bound resources for a vServer'+'\n\n'+
+        '\tlistall'+'\n\n'+
+            'List all resources'+'\n\n'+
+        '\tstatus [resource]'+'\n\n'+
+            'Display the status of a resource'+'\n\n'+
+        '\tenable [resource]'+'\n\n'+
+            'Enable a resource by name'+'\n\n'+
+        '\tdisable [resource]'+'\n\n'+
+            'Gently disable a resource by name'+'\n\n'+
+        '\tdisablenow [resource]'+'\n\n'+
+            'Immediately disable a resource by name'+'\n\n'+
+        '\trequest-auth [message to admin]'+'\n\n'+
+            'Request authorization by sending a log message to the admin';
      },
      /* Accepts a string (msg)
         Returns an object with
