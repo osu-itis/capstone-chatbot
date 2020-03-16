@@ -16,7 +16,7 @@
         },
         "command": {
             "type": "string",
-            "pattern": "^(list|status|enable|disable|disablenow)$"
+            "pattern": "^(list|listall|status|enable|disable|disablenow)$"
         },
         "target": {
             "type": "string",

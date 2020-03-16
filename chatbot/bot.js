@@ -12,6 +12,9 @@ const { BotkitCMSHelper } = require('botkit-plugin-cms');
 
 const { MongoDbStorage } = require('botbuilder-storage-mongodb');
 
+// To read credentials from file
+const fs = require('fs');
+
 // Load process.env values from .env file
 require('dotenv').config();
 
@@ -22,16 +25,25 @@ if (process.env.MONGO_URI) {
     });
 }
 
+//Reading app id and password from file
+let app_id, app_pw, contents;
+try {
+    contents = fs.readFileSync('.app_creds', 'utf8');
+    lines = contents.split('\n');
+    //app_id = lines[0];
+    //app_pw = lines[1];
+} catch (e) {
+    console.log("Unable to read app creds from file: .app_creds");
+    console.log(e);
+}
 
-
-
-
+//Start the controller using credentials from MS, and standard route
 const controller = new Botkit({
     webhook_uri: '/api/messages',
 
     adapterConfig: {
-        appId: process.env.APP_ID,
-        appPassword: process.env.APP_PASSWORD,
+        appId: app_id,
+        appPassword: app_pw,
     },
 
     storage
@@ -62,15 +74,10 @@ controller.ready(() => {
             }
         });
     }
-
 });
 
-
-
 controller.webserver.get('/', (req, res) => {
-
     res.send(`This app is running Botkit ${ controller.version }.`);
-
 });
 
 

@@ -1,8 +1,8 @@
 const axios = require('axios');
 const totpGen = require('totp-generator');
 
-const msg_lib = require('./lib/msg_lib');
-const log_lib = require('./lib/log_lib');
+const msg_lib = require('./lib/msg');
+const log_lib = require('./lib/log');
 
 const totpKey = process.env.TOTP_KEY;
 const relayUrl = process.env.RELAY_URL;
@@ -26,7 +26,7 @@ module.exports = function(controller) {
         } else {
             //this validate the message, generating an appropriate error message if not valid
             valMsg = msg_lib.validate(c_msg);
-            if(valMsg.err){
+            if(valMsg.hasOwnProperty("error") && valMsg.error){
                 //if we got a bad message, then give the error to the user
                 await bot.reply(message, valMsg.errMsg);
             } else {
@@ -53,7 +53,7 @@ module.exports = function(controller) {
                         //we reach this block if the relay gives us a bad status code.
                         //we want to log this, and for now, give the body data to the user
                         log_lib.send(log_lib.make(c_msg.fulltext, request, error.response));
-                        await bot.reply(message, "Body: " + JSON.stringify(error.response.data));
+                        await bot.reply(message, "Error: "+error.response.status+ " " + error.response.statusText);
                     } else if (error.request) {
                         //request was made, but no reponse received.
                         //no log here
