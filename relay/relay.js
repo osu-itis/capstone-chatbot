@@ -1,7 +1,7 @@
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
-const axios = require('axios');
+
 
 require('dotenv').config();
 
@@ -19,6 +19,9 @@ var validate = validator.validate;
 const schema = require('require-all')(__dirname + '/schema');
 const totp_test_mw = require('./lib/totp_test_mw');
 
+//auth req
+const auth = require('./lib/auth');
+
 app.use(bodyParser.json());
 app.use(totp_test_mw(process.env.TOTP_KEY, 1));
 
@@ -27,18 +30,41 @@ app.post('/api', validate({body: schema.api_schema }), async (req,res) => {
     var apiCall = JSON.parse(JSON.stringify(req.body))
     console.log(JSON.stringify(apiCall));
 
-    //make a new nitro with every request, this clears the token;
-    var nitro = require('./lib/nitro')(baseURL);
+    //declaring nitro in this scope so that it can be used throughout the route
+    var nitro;
 
-    //Login using testing route (admin creds)
-    loginRes = await nitro.login();
-    if(loginRes.hasOwnProperty("error") && loginRes.error){
-        console.log(loginRes);
-        res.status(loginRes.status).send({
-            "msg": loginRes.msg,
-            "data": loginRes.data
+    //get credentials to login
+    creds = await auth.getCreds(apiCall.id);
+
+    if(creds == false){
+        return res.status(401).send({
+            "error": true,
+            "msg": "Unauthorized",
+            "data": "Unable to verify uuid in credentials file"
         });
+    } else {
+        //make a new nitro with every request, this clears the token;
+        nitro = require('./lib/nitro')(creds.url);
+        //login with credentials from
+        loginRes = await nitro.loginWithCreds(creds.username, creds.password);
+        if(loginRes.hasOwnProperty("error") && loginRes.error){
+            console.log(loginRes);
+            return res.status(loginRes.status).send({
+                "msg": loginRes.msg,
+                "data": loginRes.data
+            });
+        }
     }
+
+    // //Login using testing route (admin creds)
+    // loginRes = await nitro.login();
+    // if(loginRes.hasOwnProperty("error") && loginRes.error){
+    //     console.log(loginRes);
+    //     res.status(loginRes.status).send({
+    //         "msg": loginRes.msg,
+    //         "data": loginRes.data
+    //     });
+    // }
 
     //controls the flow of calls to the netscalers
     switch(apiCall.command) {
