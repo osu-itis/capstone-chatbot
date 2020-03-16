@@ -23,6 +23,14 @@ module.exports = function(controller) {
         //if the command is help, send usage and skip the rest
         if(c_msg.command == "help"){
             await bot.reply(message, `${msg_lib.usage()}`);
+        }else if (c_msg.command == "request-auth"){
+            log_lib.send({
+                "ATTENTION": c_msg.command,
+                "Name": user_name,
+                "UUID": user_id,
+                "Full text": c_msg.fulltext
+            });
+            await bot.reply(message, "A request for authorization has been sent to the administrator.");
         } else {
             //this validate the message, generating an appropriate error message if not valid
             valMsg = msg_lib.validate(c_msg);
