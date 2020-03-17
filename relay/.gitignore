@@ -1,5 +1,4 @@
 .
-.auth.csv
+.auth
 .env
-.password
 node_modules/

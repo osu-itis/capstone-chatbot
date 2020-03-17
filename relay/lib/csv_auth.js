@@ -2,7 +2,7 @@ fs = require('fs');
 
 module.exports = async (uuid) => {
     try {
-        contents = fs.readFileSync('.auth.csv', 'utf8');
+        contents = fs.readFileSync('.auth', 'utf8');
         lines = contents.split('\n');
         for(i in lines){
             fields = lines[i].split(',');
@@ -14,6 +14,7 @@ module.exports = async (uuid) => {
                 }
             }
         }
+        return false;
     } catch(e) {
         console.log("Unable to read or parse .auth.csv");
         console.log(e);
