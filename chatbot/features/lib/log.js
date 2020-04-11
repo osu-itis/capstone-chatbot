@@ -24,14 +24,18 @@ module.exports = {
         };
         cloudWatchLogs.describeLogStreams({logGroupName: cwLogGroup}, (err,data) => {
             if (err){
-                console.log(err, err.stack);
+                // NOTE: Sometimes this call will fail when using the emulator with old conversation.
+                // Potentially after pausing the developement virtual machine.
+                // This has only been observed in a local environment
+                console.log("Describe Log Stream Error:\n", err, err.stack);
             } else {
+                console.log(data.logStreams);
                 for(index in data.logStreams){
                     if(data.logStreams[index].logStreamName === cwLogStream){
                         params.sequenceToken = data.logStreams[index].uploadSequenceToken;
                         cloudWatchLogs.putLogEvents(params, (err, data) => {
                             if (err){
-                                console.log(err, err.stack);
+                                console.log("Put LogEvent Error:\n", err, err.stack);
                             } else {
                                 //It worked.
                             }
