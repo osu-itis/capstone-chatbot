@@ -7,6 +7,8 @@
     "start": "node bot.js",
     "test": "node node_modules/jasmine/bin/jasmine.js"
   },
+  "author": "Team CS63",
+  "license": "MIT",
   "dependencies": {
     "aws-sdk": "^2.639.0",
     "axios": "^0.19.2",
@@ -15,8 +17,7 @@
     "botkit-plugin-cms": "^1.0.3",
     "dotenv": "^7.0.0",
     "jasmine": "^3.5.0",
-    "pm2": "^4.2.3",
-    "totp-generator": "0.0.7"
-  },
-  "devDependencies": {}
+    "jssha": "^2.3.1",
+    "require-all": "^3.0.0"
+  }
 }
