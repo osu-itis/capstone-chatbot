@@ -4,64 +4,9 @@ const nitroError = require('./nitro_error');
 const nitroList = require('./nitro_list');
 const nitroListAll = require('./nitro_list_all');
 
-//const fs = require('fs');
-//const defaultUsername = process.env.NETSCALER_USERNAME;
-//let defaultPassword;
-// fs.readFile('.password', 'utf8', (err, contents) => {
-//     defaultPassword = contents;
-// });
-
-module.exports = (baseURL) => {
-
-    let token = null;
-
-    //If version differences are found:
-    //    Add version param to export and uncomment below
-    // if (version != "13.0" && version != "12.0"){
-    //     throw "Invalid NITRO version selected, choose 12.0 or 13.0";
-    // } else {
-    //     //No differences to account for currently
-    // }
+module.exports = (baseURL, token) => {
 
     return {
-        //POST /nitro/v1/config/login
-        //logs in with given credentials, token is stored and true is returned.
-        login: async (username, password) => {
-            let output;
-            let url = baseURL+"/nitro/v1/config/login";
-            console.log(url);
-            await axios.post(url,  {
-                "login":{
-                    "username": username,
-                    "password": password
-                }
-            }).then((res) => {
-                token = res.data.sessionid;
-            }) 
-            .catch((error) => {
-                nErr = nitroError(error);
-            });
-            if (output) throw nErr;
-            else return true;
-        },
-        listVServers: async () => {
-
-        },
-        listAllResources: async() => {
-
-        },
-        listBoundResourcesByName: async (resource) => {
-
-        },
-        getResourceStatusByName: async (resource) => {
-
-        },
-        enableResourceByName: async (resource) => {
-
-        },
-        disableResourceByName: async (resource, delay) => {
-
-        },
         //This function runs all the list commands, and returns them
         resourcesListAll: async () => {
             return await nitroListAll(baseURL, token);
