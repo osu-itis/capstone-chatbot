@@ -9,7 +9,6 @@
   },
   "author": "Team CS63",
   "license": "MIT",
-  "devDependencies": {},
   "dependencies": {
     "axios": "^0.19.2",
     "body-parser": "^1.19.0",
@@ -18,7 +17,6 @@
     "express-json-validator-middleware": "^2.0.0",
     "jasmine": "^3.5.0",
     "jssha": "^2.3.1",
-    "pm2": "^4.2.3",
     "require-all": "^3.0.0"
   }
 }
