@@ -6,7 +6,7 @@ module.exports = async (id) => {
         contents = fs.readFileSync('.auth', 'utf8');
         lines = contents.split('\n');
     } catch(e) {
-        console.log("Unable to read or parse .auth.csv");
+        console.log("Unable to read or parse .auth");
         console.log(e);
         return false;
     }

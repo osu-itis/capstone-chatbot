@@ -29,79 +29,83 @@ module.exports = (baseURL, totpKey) => {
 
     axios.defaults.baseURL = baseURL;
 
-    return async (path, usr, cmd) => {
-        //create standardized request format
-        //the result looks like this:
-        /*
-        {
-            user: {
-                name: string
-                id: string, xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-            },
-            command: {
-                command: string [list|listall|listbound|status|enable|disable]
-                target: string (if command == [listbound|status|enable|disable] )
-                delay: number (if command == disable)
-            },
-            totp: number, 6-digits
+    return {
+        post: async (path, usr, cmd) => {
+            //create standardized request format
+            //the result looks like this:
+            /*
+            {
+                user: {
+                    name: string
+                    id: string, xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+                },
+                command: {
+                    command: string [list|listall|listbound|status|enable|disable]
+                    target: string (if command == [listbound|status|enable|disable] )
+                    delay: number (if command == disable)
+                },
+                totp: number, 6-digits
+            }
+            */
+            request = {
+                user: usr,
+                command: cmd,
+                totp: totpGen.getToken()
+            };
+
+            console.log(path);
+            console.log(JSON.stringify(request));
+            var result = {};
+
+            //makes post call to relay
+            await axios.post(path, request)
+                .then(async (response) => {
+                    //if successful, we log the message to cloudwatchlogs
+                    log_lib.send(log_lib.make(request, response));
+                    //and return the response
+                    result = {
+                        error: false,
+                        status: response.status,
+                        statusText: response.statusText,
+                        data: response.data
+                    };
+                })
+                .catch(async (error) => {
+                    if(error.response){
+                        //we reach this block if the relay gives us a bad status code.
+                        //we want to log this, and return the reponse
+                        log_lib.send(log_lib.make(request, error.response));
+                        result = {
+                            error: true,
+                            status: error.response.status,
+                            statusText: error.response.statusText,
+                            data: error.response.data
+                        };
+                    } else if (error.request) {
+                        //request was made, but no reponse received.
+                        //no log here
+                        result = {
+                            error: true,
+                            status: 504,
+                            statusText: "No response from relay",
+                            data: {
+                                request: error.request
+                            }
+                        };
+                    } else {
+                        //something else happened (some internal error):
+                        //again, no log
+                        result = {
+                            error: true,
+                            status: 500,
+                            statusText: "Unexpected error sending request",
+                            data: {
+                                error: error.message
+                            }
+                        };
+                    }
+                });
+                return result;
         }
-        */
-        request = {
-            user: usr,
-            command: cmd,
-            totp: totpGen.getToken()
-        };
-
-        console.log(path);
-        console.log(JSON.stringify(request));
-
-        //makes post call to relay
-        await axios.post(path, request)
-            .then(async (response) => {
-                //if successful, we log the message to cloudwatchlogs
-                log_lib.send(log_lib.make(request, response));
-                //and return the response
-                return {
-                    error: false,
-                    status: res.status,
-                    statusText: res.statusText,
-                    data: res.data
-                };
-            })
-            .catch(async (error) => {
-                if(error.response){
-                    //we reach this block if the relay gives us a bad status code.
-                    //we want to log this, and return the reponse
-                    log_lib.send(log_lib.make(request, error.response));
-                    return {
-                        error: true,
-                        status: error.response.status,
-                        statusText: error.response.statusText,
-                        data: error.response.data
-                    };
-                } else if (error.request) {
-                    //request was made, but no reponse received.
-                    //no log here
-                    return {
-                        error: true,
-                        status: 504,
-                        statusText: "No response from relay",
-                        data: {
-                            request: error.request
-                        }
-                    };
-                } else {
-                    //something else happened (some internal error):
-                    //again, no log
-                    return {
-                        error: true,
-                        status: 500,
-                        statusText: "Unexpected error sending request",
-                        data: {
-                            error: error.message
-                        }
-                    };
-                }
-            });
     }
 }

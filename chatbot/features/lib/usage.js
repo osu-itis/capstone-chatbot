@@ -27,7 +27,7 @@ const usage = {
     },
     'disable': {
         comm: 'disable <resource> [delay: optional, default=0]',
-        text: 'Disable a resource by name with an optional delay (seconds). '
+        text: 'Disable a resource by name with an optional delay (seconds)'
     },
     'request-auth':  {
         comm: 'request-auth [message: optional]',
@@ -39,11 +39,11 @@ module.exports = {
 
     //Returns a string with the full usage text
     all: () => {
-        result = 'Usage:\n\n';
+        result = '**Usage:**\n\n';
         for(command in usage) {
             result = result + 
-                '\t'+usage[command].comm+'\n\n'+
-                usage[command].text+'\n\n';
+                '**'+usage[command].comm+'**\n\n'+
+                '_'+usage[command].text+'_\n\n';
         }
         return result.slice(0, -2);
     },
@@ -54,8 +54,8 @@ module.exports = {
     get: (command) => {
         if(usage.hasOwnProperty(command)) {
             return 'Usage:\n\n'+
-                '\t'+usage[command].comm+'\n\n'+
-                usage[command].text;
+                '**'+usage[command].comm+'**\n\n'+
+                '_'+usage[command].text+'_';
         } else {
             return command + ' does not have a usage text';
         }

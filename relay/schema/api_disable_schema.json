@@ -1,0 +1,53 @@
+{
+    "$schema": "http://json-schema.org/schema#",
+    "type": "object",
+    "properties": {
+        "user": {
+            "type": "object",
+            "required": ["name", "id"],
+            "additionalProperties": false,
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "pattern": "^[0-9a-zA-Z ]+$",
+                    "minLength": 2,
+                    "maxLength": 64
+                },
+                "id": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{8}\\-([a-f0-9]{4}\\-){3}[a-f0-9]{12}$",
+                    "minLength": 36,
+                    "maxLength": 36
+                }
+            }
+        },
+        "command": {
+            "type": "object",
+            "required": ["command", "target", "delay"],
+            "additionalProperties": false,
+            "properties": {
+                "command": {
+                    "type": "string",
+                    "pattern": "^(disable)$"
+                },
+                "target": {
+                    "type": "string",
+                    "pattern": "^[0-9a-zA-Z \\-\\_\\#\\.\\:\\@\\=]+$",
+                    "minLength": 1,
+                    "maxLength": 128
+                },
+                "delay": {
+                    "type": "integer"
+                }
+            }
+        },
+        "totp": {
+            "type":"string",
+            "pattern": "^[0-9]{6}$",
+            "minLength":6,
+            "maxLength": 6
+        }
+    },
+    "required": ["user", "command", "totp"],
+    "additionalProperties": false
+}

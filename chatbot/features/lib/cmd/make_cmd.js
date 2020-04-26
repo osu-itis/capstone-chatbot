@@ -66,6 +66,21 @@ module.exports = {
             delay: delay
         };
     },
+    //disablenow: 1-2 parameters:
+        //First: String w/ allowed characters for a resource name (see lib) [Required]
+        //Second: Integer w/ characters 0-9, no decimals [Optional, Default: 0]
+    disablenow: (fulltext) => {
+        text = lib.clean(fulltext);
+        lib.test_term_count(text.length, 2, 3);
+        target = lib.test_target_param(text[1]);
+        //if there's 2 params, test the 2nd one and set it to delay, otherwise set it to 0
+        delay = text.length == 3 ? lib.test_int_param(text[2]) : 0;
+        return {
+            command: text[0],
+            target: target,
+            delay: delay
+        };
+    },
     //help: 0-1 parameters: parameter must be an available command (set in regex within cmd_lib) [Optional]
     help: (fulltext) => {
         text = lib.clean(fulltext);
@@ -78,7 +93,7 @@ module.exports = {
     },
     //request-auth: 0 - 1 param. Param is a message string that may contain spaces [Optional]
     //              As such, the message is reconstructed from index 1 to text.length
-    'request-auth': (fulltext) => {
+    reqauth: (fulltext) => {
         text = lib.clean(fulltext);
         target = "";
         if(text.length >= 2) {

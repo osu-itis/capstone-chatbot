@@ -1,5 +1,5 @@
 const get_user = require('./lib/get_user');
-const make_cmd = require('./lib/make_cmd');
+const make_cmd = require('./lib/cmd/make_cmd');
 
 const usage = require('./lib/usage');
 
@@ -21,12 +21,19 @@ module.exports = function (controller) {
     });
 
     //request-auth : Sends log message to admin
-    controller.hears(new RegExp(/^request\\-auth\s*/), ['message', 'direct_message'], async (bot, message) => {
+    controller.hears(new RegExp(/^request\-auth\s*/), ['message', 'direct_message'], async (bot, message) => {
+        usr = get_user(message);
+        try {
+            cmd = make_cmd.reqauth(message.text);
+            await bot.reply(message, "A log message with your request has been sent to the administrator")
+        } catch (e) {
+            await bot.reply(message, "Error: " + e);
+        }
         log_lib.send({
-            "ATTENTION": c_msg.command,
-            "Name": user_name,
-            "UUID": user_id,
-            "Full text": c_msg.fulltext
+            "ATTENTION": cmd.command,
+            "Name": usr.name,
+            "ID": usr.id,
+            "Full text": cmd.target
         });
     });
 }
