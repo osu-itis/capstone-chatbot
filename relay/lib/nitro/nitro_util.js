@@ -6,7 +6,7 @@ const nitroListAll = require('./nitro_list_all');
 module.exports = {
     //This function runs all the list commands, and returns them
     resourcesListAll: async (baseURL, token) => {
-        return await nitroListAll(baseURL, token);
+        return await nitroListAll(baseURL, token, false);
     },
     //This function runs all the list commands, and returns the matching resource
     findResource: async (baseURL, token, target) => {
@@ -19,7 +19,12 @@ module.exports = {
                 };
             }
         }
-        return false;
+        throw new NitroError({
+            response: {
+                status: 404,
+                statustext: "Resource does not exist"
+            }
+        });
     },
     vServerListAllNames: async(baseURL, token) => {
         return await nitroList.vServerListAllNames(baseURL,token);
@@ -103,6 +108,7 @@ module.exports = {
         }).then(async (res) => {
             vs = res.data.lbvserver[0];
             output = {
+                "type": "vserver",
                 "name": vs.name,
                 "ip": vs.ipv46,
                 "state": vs.curstate,
@@ -126,6 +132,7 @@ module.exports = {
         }).then(async (res) => {
             sg = res.data.servicegroup[0];
             output = {
+                "type": "servicegroup",
                 "name": sg.servicegroupname,
                 "connections": sg.numofconnections,
                 "state": sg.state
@@ -146,6 +153,7 @@ module.exports = {
         }).then(async (res) => {
             svc = res.data.service[0];
             output =  {
+                "type": "service",
                 "name": svc.name,
                 "connections": svc.numofconnections,
                 "servername": svc.servername,
@@ -169,6 +177,7 @@ module.exports = {
         }).then(async (res) => {
             svr = res.data.server[0];
             output = {
+                "type": "server",
                 "name": svr.name,
                 "ip": svr.ipaddress,
                 "state": svr.state

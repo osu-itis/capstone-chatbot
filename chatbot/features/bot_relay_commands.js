@@ -17,7 +17,7 @@ module.exports = function(controller) {
         try { 
             cmd = make_cmd.listall(message.text);
             result = await http_relay.post("api/listall", usr, cmd);
-            await bot.reply(message, pp(result.data));
+            await bot.reply(message, pp(result));
         } catch (e) {
             await bot.reply(message, "Error: " + e);
         }
@@ -31,7 +31,7 @@ module.exports = function(controller) {
             cmd = make_cmd.listbound(message.text);
             result = await http_relay.post("api/listbound", usr, cmd);
             console.log(result);
-            await bot.reply(message, pp(result.data));
+            await bot.reply(message, pp(result));
         } catch (e) {
             await bot.reply(message, "Error: " + e);
         }
@@ -47,7 +47,7 @@ module.exports = function(controller) {
         }
         result = await http_relay.post("api/list", usr, cmd);
         console.log(result);
-        await bot.reply(message, pp(result.data));
+        await bot.reply(message, pp(result));
     });
 
     //status [resource] : Display the status of the resource
@@ -56,7 +56,7 @@ module.exports = function(controller) {
         try { 
             cmd = make_cmd.status(message.text);
             result = await http_relay.post("api/status", usr, cmd);
-            await bot.reply(message, pp(result.data));
+            await bot.reply(message, pp(result));
         } catch (e) {
             await bot.reply(message, "Error: " + e);
         }
@@ -68,7 +68,7 @@ module.exports = function(controller) {
         try { 
             cmd = make_cmd.enable(message.text);
             result = await http_relay.post("api/enable", usr, cmd);
-            await bot.reply(message, pp(result.data));
+            await bot.reply(message, pp(result));
         } catch (e) {
             await bot.reply(message, "Error: " + e);
         }
@@ -80,7 +80,7 @@ module.exports = function(controller) {
         try { 
             cmd = make_cmd.disable(message.text);
             result = await http_relay.post("api/disable", usr, cmd);
-            await bot.reply(message, pp(result.data));
+            await bot.reply(message, pp(result));
         } catch (e) {
             await bot.reply(message, "Error: " + e);
         }
@@ -92,7 +92,7 @@ module.exports = function(controller) {
         try { 
             cmd = make_cmd.disablenow(message.text);
             result = await http_relay.post("api/disablenow", usr, cmd);
-            await bot.reply(message, pp(result.data));
+            await bot.reply(message, pp(result));
         } catch (e) {
             await bot.reply(message, "Error: " + e);
         }

@@ -64,11 +64,10 @@ module.exports = (baseURL, totpKey) => {
                     log_lib.send(log_lib.make(request, response));
                     //and return the response
                     result = {
-                        error: false,
                         status: response.status,
-                        statusText: response.statusText,
-                        data: response.data
+                        statusText: response.statusText
                     };
+                    if(response.data) result.data = response.data;
                 })
                 .catch(async (error) => {
                     if(error.response){
@@ -76,7 +75,6 @@ module.exports = (baseURL, totpKey) => {
                         //we want to log this, and return the reponse
                         log_lib.send(log_lib.make(request, error.response));
                         result = {
-                            error: true,
                             status: error.response.status,
                             statusText: error.response.statusText,
                             data: error.response.data
@@ -85,18 +83,14 @@ module.exports = (baseURL, totpKey) => {
                         //request was made, but no reponse received.
                         //no log here
                         result = {
-                            error: true,
                             status: 504,
-                            statusText: "No response from relay",
-                            data: {
-                                request: error.request
-                            }
+                            statusText: "No response from relay"
+                            //,data: { request: error.request }
                         };
                     } else {
                         //something else happened (some internal error):
                         //again, no log
                         result = {
-                            error: true,
                             status: 500,
                             statusText: "Unexpected error sending request",
                             data: {
@@ -105,6 +99,7 @@ module.exports = (baseURL, totpKey) => {
                         };
                     }
                 });
+                console.log(result);
                 return result;
         }
     }

@@ -71,7 +71,7 @@ module.exports = (baseURL, token) => {
             }
         },
         disableResourceByName: async (resource, delay, graceful) => {
-            search = await nitro.findResource(baseURL, token, resource);
+            search = await nitroUtil.findResource(baseURL, token, resource);
             switch(search.type){
                 case "vserver":
                     result = await nitroUtil.vServerDisable(baseURL, token, resource);

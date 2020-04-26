@@ -8,6 +8,7 @@
 ///tThis is preformatted text
 
 module.exports = (obj) => {
+    if(obj.hasOwnProperty("data")) obj = obj.data;
     //Stringify object using \n at the whitespace
     result = JSON.stringify(obj, null, "\n");
     //All chained \n are replaced with: \n\n to create a newline within MSTeams
