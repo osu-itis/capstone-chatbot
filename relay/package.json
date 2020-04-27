@@ -10,11 +10,12 @@
   "author": "Team CS63",
   "license": "MIT",
   "dependencies": {
+    "aws-sdk": "^2.663.0",
     "axios": "^0.19.2",
     "body-parser": "^1.19.0",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
-    "express-json-validator-middleware": "^2.0.0",
+    "express-json-validator-middleware": "^2.1.1",
     "jasmine": "^3.5.0",
     "jssha": "^2.3.1",
     "require-all": "^3.0.0"

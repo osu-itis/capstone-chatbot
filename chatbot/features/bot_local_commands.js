@@ -4,13 +4,12 @@ const make_cmd = require('./lib/cmd/make_cmd');
 const usage = require('./lib/usage');
 
 const logGroup = 'NitroChatbot';
-const logStream = 'RequestedAuths'
-const log_lib = require('./util/cwlogs')(logGroup, logStream);
+const auth_log_lib = require('./util/cwlogs')(logGroup);
 
 module.exports = function (controller) {
 
     //help : Shows usage text
-    controller.hears(new RegExp(/^help\s*/), ['message', 'direct_message'], async (bot, message) => {
+    controller.hears(new RegExp(/^help(\s*$|\s+)/i), ['message', 'direct_message'], async (bot, message) => {
         try {
             cmd = make_cmd.help(message.text);
             text = cmd.target == "all" ? usage.all() : usage.get(cmd.target);
@@ -21,7 +20,7 @@ module.exports = function (controller) {
     });
 
     //request-auth : Sends log message to admin
-    controller.hears(new RegExp(/^request\-auth\s*/), ['message', 'direct_message'], async (bot, message) => {
+    controller.hears(new RegExp(/^request\-auth(\s*$|\s+)/i), ['message', 'direct_message'], async (bot, message) => {
         usr = get_user(message);
         try {
             cmd = make_cmd.reqauth(message.text);
@@ -29,7 +28,7 @@ module.exports = function (controller) {
         } catch (e) {
             await bot.reply(message, "Error: " + e);
         }
-        log_lib.send({
+        auth_log_lib.send('RequestedAuths' ,{
             "ATTENTION": cmd.command,
             "Name": usr.name,
             "ID": usr.id,

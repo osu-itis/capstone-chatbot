@@ -7,11 +7,11 @@ module.exports = (baseURL, token) => {
         //Which are then passed with next(NitroError) to our error case within the relay
         //Each function here matches a route within the relay
         listVServers: async () => {
-            results = await nitroUtil.vServerListAllNames(baseURL, token);
+            var results = await nitroUtil.vServerListAllNames(baseURL, token);
             return results;
         },
         listAllResources: async() => {
-            results = await nitroUtil.resourcesListAll(baseURL, token);
+            var results = await nitroUtil.resourcesListAll(baseURL, token);
             return results;
         },
         listBoundResourcesByName: async (resource) => {
@@ -57,16 +57,16 @@ module.exports = (baseURL, token) => {
             search = await nitroUtil.findResource(baseURL, token, resource);
             switch(search.type){
                 case "vserver":
-                    result = await nitroUtil.vServerEnable(baseURL, token, resource);
+                    var results = await nitroUtil.vServerEnable(baseURL, token, resource);
                     return results;
                 case "servicegroup":
-                    result = await nitroUtil.serviceGroupEnable(baseURL, token, resource);
+                    var results = await nitroUtil.serviceGroupEnable(baseURL, token, resource);
                     return results;
                 case "service":
-                    result = await nitroUtil.serviceEnable(baseURL, token, resource);
+                    var results = await nitroUtil.serviceEnable(baseURL, token, resource);
                     return results;
                 case "server":
-                    result = await nitroUtil.serverEnable(baseURL, token, resource);
+                    var results = await nitroUtil.serverEnable(baseURL, token, resource);
                     return results;
             }
         },
@@ -74,16 +74,16 @@ module.exports = (baseURL, token) => {
             search = await nitroUtil.findResource(baseURL, token, resource);
             switch(search.type){
                 case "vserver":
-                    result = await nitroUtil.vServerDisable(baseURL, token, resource);
+                    var results = await nitroUtil.vServerDisable(baseURL, token, resource);
                     return results;
                 case "servicegroup":
-                    result = await nitroUtil.serviceGroupDisable(baseURL, token, resource, delay, graceful);
+                    var results = await nitroUtil.serviceGroupDisable(baseURL, token, resource, delay, graceful);
                     return results;
                 case "service":
-                    result = await nitroUtil.serviceDisable(baseURL, token, resource, delay, graceful);
+                    var results = await nitroUtil.serviceDisable(baseURL, token, resource, delay, graceful);
                     return results;
                 case "server":
-                    result = await nitroUtil.serverDisable(baseURL, token, resource, delay, graceful);
+                    var results = await nitroUtil.serverDisable(baseURL, token, resource, delay, graceful);
                     return results;
             }
         }

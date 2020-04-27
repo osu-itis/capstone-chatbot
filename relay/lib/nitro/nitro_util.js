@@ -205,10 +205,7 @@ module.exports = {
             },
             {headers: {"Cookie": "NITRO_AUTH_TOKEN="+token}}
         ).then(async (res) => {
-            output = {
-                "status": res.status,
-                "msg": res.statustext
-            };
+            
         }).catch(async (error) => {
             output = new NitroError(error);
         });
@@ -234,10 +231,7 @@ module.exports = {
             },
             {headers: {"Cookie": "NITRO_AUTH_TOKEN="+token}}
         ).then(async (res) => {
-            output = {
-                "status": res.status,
-                "msg": res.statustext
-            };
+            
         }).catch(async (error) => {
             output = new NitroError(error);
         });
@@ -259,10 +253,7 @@ module.exports = {
             },
             {headers: {"Cookie": "NITRO_AUTH_TOKEN="+token}}
         ).then(async (res) => {
-            output = {
-                "status": res.status,
-                "msg": res.statustext
-            };
+            
         }).catch(async (error) => {
             output = new NitroError(error);
         });
@@ -286,10 +277,7 @@ module.exports = {
             },
             {headers: {"Cookie": "NITRO_AUTH_TOKEN="+token}}
         ).then(async (res) => {
-            output = {
-                "status": res.status,
-                "msg": res.statustext
-            };
+            
         }).catch(async (error) => {
             output = new NitroError(error);
         });
@@ -311,10 +299,7 @@ module.exports = {
             },
             {headers: {"Cookie": "NITRO_AUTH_TOKEN="+token}}
         ).then(async (res) => {
-            output = {
-                "status": res.status,
-                "msg": res.statustext
-            };
+            
         }).catch(async (error) => {
             output = new NitroError(error);
         });
@@ -338,10 +323,7 @@ module.exports = {
             },
             {headers: {"Cookie": "NITRO_AUTH_TOKEN="+token}}
         ).then(async (res) => {
-            output = {
-                "status": res.status,
-                "msg": res.statustext
-            };
+            
         }).catch(async (error) => {
             output = new NitroError(error);
         });
@@ -363,10 +345,7 @@ module.exports = {
             },
             {headers: {"Cookie": "NITRO_AUTH_TOKEN="+token}}
         ).then(async (res) => {
-            output = {
-                "status": res.status,
-                "msg": res.statustext
-            };
+            
         }).catch(async (error) => {
             output = new NitroError(error);
         });
@@ -388,10 +367,7 @@ module.exports = {
             },
             {headers: {"Cookie": "NITRO_AUTH_TOKEN="+token}}
         ).then(async (res) => {
-            output = {
-                "status": res.status,
-                "msg": res.statustext
-            };
+            
         }).catch(async (error) => {
             output = new NitroError(error);
         });
@@ -413,10 +389,7 @@ module.exports = {
             },
             {headers: {"Cookie": "NITRO_AUTH_TOKEN="+token}}
         ).then(async (res) => {
-            output = {
-                "status": res.status,
-                "msg": res.statustext
-            };
+            
         }).catch(async (error) => {
             output = new NitroError(error);
         });
@@ -440,10 +413,7 @@ module.exports = {
             },
             {headers: {"Cookie": "NITRO_AUTH_TOKEN="+token}}
         ).then(async (res) => {
-            output = {
-                "status": res.status,
-                "msg": res.statustext
-            };
+            
         }).catch(async (error) => {
             output = new NitroError(error);
         });

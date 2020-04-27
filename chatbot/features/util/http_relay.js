@@ -2,8 +2,7 @@ const axios = require('axios');
 var totpGen = require('./totp_gen_mod');
 
 const logGroup = 'NitroChatbot';
-const logStream = 'UserLogs'
-const log_lib = require('./cwlogs')(logGroup, logStream);
+const log_lib = require('./cwlogs')(logGroup);
 
 //This export expects a baseURL, and a valid totpKey (BASE32) when created.
 //When using it, it expects a path, along with a user and command object for the relay to use.
@@ -53,15 +52,13 @@ module.exports = (baseURL, totpKey) => {
                 totp: totpGen.getToken()
             };
 
-            console.log(path);
-            console.log(JSON.stringify(request));
             var result = {};
 
             //makes post call to relay
             await axios.post(path, request)
                 .then(async (response) => {
                     //if successful, we log the message to cloudwatchlogs
-                    log_lib.send(log_lib.make(request, response));
+                    log_lib.send('UserLogs',log_lib.make(request, response));
                     //and return the response
                     result = {
                         status: response.status,
@@ -73,7 +70,7 @@ module.exports = (baseURL, totpKey) => {
                     if(error.response){
                         //we reach this block if the relay gives us a bad status code.
                         //we want to log this, and return the reponse
-                        log_lib.send(log_lib.make(request, error.response));
+                        log_lib.send('UserLogs',log_lib.make(request, error.response));
                         result = {
                             status: error.response.status,
                             statusText: error.response.statusText,
@@ -99,7 +96,6 @@ module.exports = (baseURL, totpKey) => {
                         };
                     }
                 });
-                console.log(result);
                 return result;
         }
     }

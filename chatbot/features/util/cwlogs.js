@@ -3,10 +3,9 @@ AWS.config.update({region: 'us-west-2'});
 
 const cloudWatchLogs = new AWS.CloudWatchLogs();
 
-module.exports = (group, stream) => {
+module.exports = (group) => {
     
     cwLogGroup = group;
-    cwLogStream = stream;
     
     return {
         /* This function sends the log event to the Log Group and Log Stream specified in env variables.
@@ -14,7 +13,7 @@ module.exports = (group, stream) => {
             This is why 2 calls are chained within callbacks.
             No value is returned currently.
         */
-        send: (msg) => {
+        send: (stream, msg) => {
             var params = {
                 logEvents: [
                     {
@@ -23,7 +22,7 @@ module.exports = (group, stream) => {
                     }
                 ],
                 logGroupName: cwLogGroup,
-                logStreamName: cwLogStream
+                logStreamName: stream
             };
             cloudWatchLogs.describeLogStreams({logGroupName: cwLogGroup}, (err,data) => {
                 if (err){
@@ -32,10 +31,10 @@ module.exports = (group, stream) => {
                     // This has only been observed in a local environment
                     console.log("Describe Log Stream Error:\n", err, err.stack);
                 } else {
-                    console.log(data.logStreams);
                     for(index in data.logStreams){
-                        if(data.logStreams[index].logStreamName === cwLogStream){
+                        if(data.logStreams[index].logStreamName === stream){
                             params.sequenceToken = data.logStreams[index].uploadSequenceToken;
+                            console.log(params);
                             cloudWatchLogs.putLogEvents(params, (err, data) => {
                                 if (err){
                                     console.log("Put LogEvent Error:\n", err, err.stack);
