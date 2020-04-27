@@ -10,7 +10,7 @@ module.exports = {
         text = lib.clean(fulltext);
         lib.test_term_count(text.length, 1, 1);
         return {
-            command: text[0]
+            command: text[0].toLowerCase()
         };
     },
     //listall: no paramters
@@ -18,7 +18,7 @@ module.exports = {
         text = lib.clean(fulltext);
         lib.test_term_count(text.length, 1, 1);
         return {
-            command: text[0]
+            command: text[0].toLowerCase()
         };
     },
     //listbound: 1 parameter w/ allowed characters for a resource name (see lib)
@@ -27,7 +27,7 @@ module.exports = {
         lib.test_term_count(text.length, 2, 2);
         target = lib.test_target_param(text[1]);
         return {
-            command: text[0],
+            command: text[0].toLowerCase(),
             target: target
         };
     },
@@ -37,7 +37,7 @@ module.exports = {
         lib.test_term_count(text.length, 2, 2);
         target = lib.test_target_param(text[1]);
         return {
-            command: text[0],
+            command: text[0].toLowerCase(),
             target: target
         };
     },
@@ -47,7 +47,7 @@ module.exports = {
         lib.test_term_count(text.length, 2, 2);
         target = lib.test_target_param(text[1]);
         return {
-            command: text[0],
+            command: text[0].toLowerCase(),
             target: target
         };
     },
@@ -61,7 +61,7 @@ module.exports = {
         //if there's 2 params, test the 2nd one and set it to delay, otherwise set it to 0
         delay = text.length == 3 ? lib.test_int_param(text[2]) : 0;
         return {
-            command: text[0],
+            command: text[0].toLowerCase(),
             target: target,
             delay: delay
         };
@@ -76,7 +76,7 @@ module.exports = {
         //if there's 2 params, test the 2nd one and set it to delay, otherwise set it to 0
         delay = text.length == 3 ? lib.test_int_param(text[2]) : 0;
         return {
-            command: text[0],
+            command: text[0].toLowerCase(),
             target: target,
             delay: delay
         };
@@ -87,7 +87,7 @@ module.exports = {
         lib.test_term_count(text.length, 1, 2);
         target = text.length == 2 ? lib.test_command_param(text[1]) : "all";
         return {
-            command: text[0],
+            command: text[0].toLowerCase(),
             target: target
         };
     },
@@ -97,13 +97,13 @@ module.exports = {
         text = lib.clean(fulltext);
         target = "";
         if(text.length >= 2) {
-            for(i = 1; i<=text.length; i++) {
+            for(i = 1; i<text.length; i++) {
                 target = target + text[i] + " ";
             }
             target = target.slice(0, -1);
         }
         return {
-            command: text[0],
+            command: text[0].toLowerCase(),
             target: target
         };
     }

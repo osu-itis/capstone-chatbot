@@ -4,7 +4,6 @@ module.exports = async (req, res, next) => {
     body = JSON.parse(JSON.stringify(req.body));
     //Need to check that id is of the exactly format with a regex.
     //Otherwise return an error.
-    console.log(body);
     var idRegex = /^[a-f0-9]{8}\-([a-f0-9]{4}\-){3}[a-f0-9]{12}$/g;
     if(body.hasOwnProperty("user") && body.user.hasOwnProperty("id") && idRegex.test(body.user.id)){
         id = body.user.id;

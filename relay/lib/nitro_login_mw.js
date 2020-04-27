@@ -10,7 +10,7 @@ module.exports = async (req, res, next) => {
     try{
         var nitro = await nitroLogin(url, username, password);
     } catch (e) {
-        console.log(e);    res.status(e.status).send({
+        res.status(e.status).send({
             error: e
         });
     }

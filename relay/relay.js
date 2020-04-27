@@ -3,11 +3,7 @@ const app = express();
 const bodyParser = require('body-parser');
 const NitroError = require('./lib/nitro/nitro_error');
 
-
 require('dotenv').config();
-
-//generate random string:
-//Math.random().toString(36).substring(2,15)+Math.random().toString(36).substring(2,15)
 
 const port = process.env.PORT || 3001;
 
@@ -39,41 +35,33 @@ app.use(nitro_login_mw);
 app.post('/api/listall', validate({body: schema.api_listall_schema}), async (req, res, next) => {
     var body = JSON.parse(JSON.stringify(req.body));
     console.log(JSON.stringify(body));
-
     try {
         var results = await req.nitro.listAllResources();
     } catch (e) {
         next(e);
     }
-    
     res.status(200).send(results);
 });
 //POST /api/listbound
 app.post('/api/listbound', validate({body: schema.api_listbound_schema}), async (req, res, next) => {
     var body = JSON.parse(JSON.stringify(req.body));
     console.log(JSON.stringify(body));
-
     try {
         var results = await req.nitro.listBoundResourcesByName(body.command.target);
     } catch (e) {
         next(e);
     }
-
     res.status(200).send(results);
-
 });
 //POST /api/list
 app.post('/api/list', validate({body: schema.api_list_schema}), async (req, res, next) => {
-    
     var body = JSON.parse(JSON.stringify(req.body));
     console.log(JSON.stringify(body));
-
     try {
         var results = await req.nitro.listVServers();
     } catch (e) {
         next(e);
     }
-
     res.status(200).send(results);
 });
 //POST /api/status
@@ -124,7 +112,6 @@ app.post('/api/disablenow', validate({body: schema.api_disablenow_schema}), asyn
     }
     res.status(200).send(results);
 });
-
 app.use( (err, req, res, next) => {
     let responseData;
     //sends a generic error message if validation fails
@@ -144,7 +131,6 @@ app.use( (err, req, res, next) => {
         next(err); //pass error if not matched
     }
 });
-
 //This is the 404 route. For invalid requests, this reponse is returned.
 app.use('*', (req, res) => {
     res.send(404).send({
@@ -154,5 +140,4 @@ app.use('*', (req, res) => {
         }
     });
 });
-
 app.listen(port, () => console.log(`Relay listening on port ${port}!`));

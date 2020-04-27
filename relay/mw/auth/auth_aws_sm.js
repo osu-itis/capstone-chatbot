@@ -6,18 +6,19 @@ var client = new AWS.SecretsManager({
 
 module.exports = async (id) => {
     secretName = id;
-    console.log(id);
     var secret;
     await client.getSecretValue({SecretId: secretName}, async (err, data) => {
         if (err) {
-            if(err.code === 'DecryptionFailureException') throw err;
-            else if(err.code === 'InternalServiceErrorException') throw err;
-            else if(err.code === 'InvalidParameterException') throw err;
-            else if(err.code === 'InvalidRequestException') throw err;
-            else if(err.code === 'ResourceNotFoundException'){
-                //user does not exist in secret's manager
-                throw err;
-            } 
+            //Can't decrypt the protected secret text
+            if(err.code === 'DecryptionFailureException') throw "Internal Error";
+            //AWS Server-Side Error
+            else if(err.code === 'InternalServiceErrorException') throw "Internal Error";
+            //Invalid value for Param
+            else if(err.code === 'InvalidParameterException') throw "Internal Error";
+            //Param value not valid for current state of resource
+            else if(err.code === 'InvalidRequestException') throw "Internal Error";
+            //id isn't a valid name (i.e. user not authorized)
+            else if(err.code === 'ResourceNotFoundException') throw "Unauthorized"
         } else {
             if('SecretString' in data) {
                 secret = data.SecretString;

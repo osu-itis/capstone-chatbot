@@ -1,4 +1,4 @@
-csvparser = require('./auth_csv');
+//csvparser = require('./auth_csv');
 sm = require('./auth_aws_sm');
 
 //Any module used here must return an object with this format:
