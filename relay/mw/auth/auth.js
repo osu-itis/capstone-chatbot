@@ -11,7 +11,9 @@ sm = require('./auth_aws_sm');
 //OR it will throw a string describing the error
 module.exports = {
     getCreds: async(id) => {
-        return await csvparser(id);
-        //return await sm(id);
+        var creds;
+        //creds = await csvparser(id);
+        creds = await sm(id);
+        return creds;
     }
 }
