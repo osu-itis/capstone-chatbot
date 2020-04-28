@@ -1,0 +1,150 @@
+\documentclass[onecolumn, draftclsnofoot,10pt, compsoc]{IEEEtran}
+\usepackage{graphicx}
+\usepackage{url}
+\usepackage{setspace}
+
+\usepackage{geometry}
+\geometry{textheight=9.5in, textwidth=7in}
+
+% 1. Fill in these details
+\def \CapstoneTeamName{		    Nitro ChatBot}
+\def \CapstoneTeamNumber{		63}
+\def \GroupMemberOne{			Jack Barnes}
+\def \GroupMemberTwo{			Sarun Pitaksuteephong}
+\def \GroupMemberThree{			Cheng Xie}
+\def \CapstoneProjectName{		ChatBot for Load Balancer Infrastructure}
+\def \CapstoneSponsorCompany{	OSU Information Services}
+\def \CapstoneSponsorPerson{	Stacy Brock}
+
+% 2. Uncomment the appropriate line below so that the document type works
+\def \DocType{		Problem Statement
+				%Requirements Document
+				%Technology Review
+				%Design Document
+				%Progress Report
+				}
+			
+\newcommand{\NameSigPair}[1]{\par
+\makebox[2.75in][r]{#1} \hfil 	\makebox[3.25in]{\makebox[2.25in]{\hrulefill} \hfill		\makebox[.75in]{\hrulefill}}
+\par\vspace{-12pt} \textit{\tiny\noindent
+\makebox[2.75in]{} \hfil		\makebox[3.25in]{\makebox[2.25in][r]{Signature} \hfill	\makebox[.75in][r]{Date}}}}
+% 3. If the document is not to be signed, uncomment the RENEWcommand below
+\renewcommand{\NameSigPair}[1]{#1}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+\begin{titlepage}
+    \pagenumbering{gobble}
+    \begin{singlespace}
+    	%\includegraphics[height=4cm]{coe_v_spot1}
+        \hfill 
+        % 4. If you have a logo, use this includegraphics command to put it on the coversheet.
+        %\includegraphics[height=4cm]{CompanyLogo}   
+        \par\vspace{.2in}
+        \centering
+        \scshape{
+            \huge CS Capstone \DocType \par
+            {\large\today}\par
+            \vspace{.5in}
+            \textbf{\Huge\CapstoneProjectName}\par
+            \vfill
+            {\large Prepared for}\par
+            \Huge \CapstoneSponsorCompany\par
+            \vspace{5pt}
+            {\Large\NameSigPair{\CapstoneSponsorPerson}\par}
+            {\large Prepared by }\par
+            Group\CapstoneTeamNumber\par
+            % 5. comment out the line below this one if you do not wish to name your team
+            \CapstoneTeamName\par 
+            \vspace{5pt}
+            {\Large
+                \NameSigPair{\GroupMemberOne}\par
+                \NameSigPair{\GroupMemberTwo}\par
+                \NameSigPair{\GroupMemberThree}\par
+            }
+            \vspace{20pt}
+        }
+        \begin{abstract}
+        % 6. Fill in your abstract    
+        	This document analyzes and describes the existing problem with the configuration interface for OSU IT Infrastructure's load balancer service.
+        	To solve the existing problem, the proposed solution is a ChatBot.
+        	By providing a ChatBot, users will be able to quickly access the status and perform common configuration tasks for their load balanced resources.
+        \end{abstract}     
+    \end{singlespace}
+\end{titlepage}
+\newpage
+\pagenumbering{arabic}
+%\tableofcontents
+% 7. uncomment this (if applicable). Consider adding a page break.
+%\listoffigures
+%\listoftables
+\clearpage
+
+\textbf{Change History}\par
+
+\begin{tabular}{ p{1in} p{1in} p{4in} }
+ \textbf{Revision} & \textbf{Date} & \textbf{Changes} \\
+ \hline
+ 1.0 & 10/20/2019 
+ & First Draft \\
+ \hline
+ 1.1 & 11/25/2019 
+ & Removed references to specific technologies and implementations from all sections. Specific performance metrics added.\\
+ \hline
+  1.2 & 12/03/2019 
+ & Fixed broken symbol \\
+ \hline
+\end{tabular}
+
+\clearpage
+
+% 8. now you write!
+\section{Problem Definition}
+OSU IT Infrastructure uses Citrix NetScaler hardware to provide load balancing as a service to departments across campus.
+Load balancing is the process of distributing network traffic across multiple servers, allowing for scaleable pools of redundant servers.
+This process also improves server responsiveness and availability.
+Load balancing allows the university to provide the best accessibility to critical network resources
+
+Often, system administrators from various departments need to view the status, or even modify configurations for, their load balanced resources.
+The most common tasks include querying for the status of their server pools, adding or removing servers from the pool, and updating certificates.
+The most common reasons to perform these tasks are for routine maintenance, or when something goes wrong with a server.
+In both of these situations, being able to perform these tasks quickly is very important.
+
+Currently, these common tasks are cumbersome to access and execute.
+Performing common tasks may involve the user directly accessing the administrative web configuration for the NetScaler.
+In the worst case scenarios, the tasks may demands additional attention from the Infrastructure team.
+The current process wastes a lot of time for these users, and is extremely inefficient.
+
+\section{Proposed Solution}
+An ideal solution would streamline the user experience, reducing the number of steps needed for common tasks.
+The solution would save time, which would save money, and improve the load balancing service for resource administrators, OSU IT Infrastructure, and end-users who rely on these critical resources to be responsive and available.
+Security should be a top priority, as the load balancer is valuable hardware that is heavily relied on.
+
+A ChatBot is proposed to solve the outlined problem.
+The ChatBot will accept commands from users, check their permissions, and query the load balancer to perform the task in a more automated manner.
+By creating an always-accessible interface for users, common tasks will be quicker and easier to perform. The ChatBot will properly authenticate the user so that user's can only modify configurations for, and query the status of, resources that they own. 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%May want to rewrite some of the following information in higher level language
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%Due to the need for proper authentication within the University's professional ecosystem, Microsoft Teams is the proposed platform for the ChatBot.
+%By operating on Microsoft Teams, the ChatBot will be able to verify the identity of the authenticated users, assuring users can only alter configurations and query the status of resources that belong to them.
+
+%The ChatBot will be written in Node.js using the Botkit framework.
+%The Botkit framework is widely-used, well-documented, and portable to different applications.
+%To maintain persistence, the ChatBot is proposed to run from a cloud environment, most likely AWS (Amazon Web Services).
+%To communicate with the NetScaler, the ChatBot will utilize it's REST API: NITRO API.
+
+\section{Performance Metrics}
+The ChatBot must allow users to access the status and modify configurations for only their resources.
+User's should be able to complete all common tasks that they may need to perform.
+All common tasks should be able to be performed with a single command, followed by an authentication process.
+
+The ChatBot must respond to all commands directed at it, but must not be listen to conversations that aren't directed towards it.
+Common responses may include informing the user that they lack permissions to perform requested tasks, successful execution of requested tasks, or requested status of pools or servers.
+
+The ChatBot must be virtually always available ($>$99\% uptime).
+It will accept new commands in a non-blocking fashion, meaning it must accept command simultaneously, even from different sources.
+All received requests will return a response to the user in a timely fashion, with 60 seconds being the maximum response time.
+\end{document}
