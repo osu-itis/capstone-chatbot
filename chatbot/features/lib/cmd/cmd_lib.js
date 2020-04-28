@@ -41,7 +41,7 @@ module.exports = {
     //otherwise return the param
     //NOTE: If adding a new command to the usage msg, it needs to be added to this regex
     test_command_param: (param) => {
-        if(/^(list|listall|listbound|status|enable|disable|help|request\-auth)$/.test(param)) {
+        if(/^(list|listall|listbound|status|enable|disable|disablenow|help|request\-auth)$/.test(param)) {
             return param;
         } else {
             throw "Invalid command";

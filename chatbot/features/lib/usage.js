@@ -27,7 +27,11 @@ const usage = {
     },
     'disable': {
         comm: 'disable <resource> [delay: optional, default=0]',
-        text: 'Disable a resource by name with an optional delay (seconds)'
+        text: 'Disable a resource gently by name with an optional delay (seconds)'
+    },
+    'disablenow': {
+        comm: 'disablenow <resource> [delay: optional, default=0]',
+        text: 'Disable a resource (non-gently) by name with an optional delay (seconds)'
     },
     'request-auth':  {
         comm: 'request-auth [message: optional]',
