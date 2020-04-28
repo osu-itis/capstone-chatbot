@@ -4,7 +4,7 @@
 Running this project locally without major edits to the code will be impossible. Portions of this code require an AWS with specific resources configured in a specific way. During code review I will be sharing my screen and allow individuals to test inputs if they would like to test functionality. This project is currently running and operational within Microsoft Teams (which can also be demonstrated and tested during the review).
 
 ## Project Overview
-This project is a chatbot for Microsoft Teams that allows authorized users to quickly query a NetScaler Loadbalancer to view the status and enable/disable various resources.
+This project is a chatbot for Microsoft Teams that allows authorized users to quickly query a NetScaler loadbalancer to view the status and enable/disable various resources.
 Contained within are 2 Node.js projects that are meant to be deployed seperately and interact with each other. Additionally there are 2 more folders, one for documentation and one for file pertaining to deployment.
 
 ### Chatbot
