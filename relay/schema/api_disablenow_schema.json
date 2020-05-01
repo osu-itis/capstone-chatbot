@@ -8,10 +8,7 @@
             "additionalProperties": false,
             "properties": {
                 "name": {
-                    "type": "string",
-                    "pattern": "^[0-9a-zA-Z ]+$",
-                    "minLength": 2,
-                    "maxLength": 64
+                    "type": "string"
                 },
                 "id": {
                     "type": "string",
