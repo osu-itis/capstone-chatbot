@@ -8,6 +8,15 @@ const relayUrl = process.env.RELAY_URL;
 
 const http_relay = require('./util/http_relay')(relayUrl, totpKey);
 
+//This file contains message event triggers that match all commands that require communication with the relay.
+
+//Each event contains the following ordered operations:
+//get_user parses the user information out of the message
+//make_cmd verifies and parses the message text into the object the relay expects
+//http_relay makes the request to the relay, logs the result if the relay is contacted, and the event awaits the async function
+//bot.reply send the result to the user, using the pp (prettyprint) function to create a string that will display nicely in teams
+//the whole thing is contained in a try catch block, if any function has an error, it will throw it and instead send the thrown string to the user prepended by "Error:"
+
 module.exports = function(controller) {
 
     //listall : List all resources

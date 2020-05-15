@@ -76,6 +76,9 @@ controller.ready(() => {
     }
 });
 
+// If any pages need to be served by the application, they would be below:
+
+// This is a route added by the Bot Framework template.
 controller.webserver.get('/', (req, res) => {
     res.send(`This app is running Botkit ${ controller.version }.`);
 });

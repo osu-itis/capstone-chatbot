@@ -3,7 +3,8 @@
 
 module.exports = function(controller) {
 
-    //Catch all event for unmatched messages from user
+    //Catch-all event for unmatched messages from user
+    //This will display a generic error message to the user, suggesting they instead view the usage text with "help".
     controller.hears(async (message) => message.text, ['message', 'direct_message'], async (bot, message) => {
         await bot.reply(message, 'Error: Command not recognized. Try again or type "help" to see the full usage text.');
     });

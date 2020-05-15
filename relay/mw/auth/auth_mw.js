@@ -1,5 +1,7 @@
 auth = require('./auth');
 
+//This file is used at a middleware by express in relay.js
+// Internally, this relies on auth.js (which in turn can use whatever method to retrieve credentials)
 module.exports = async (req, res, next) => {
     body = JSON.parse(JSON.stringify(req.body));
     //Need to check that id is of the exactly format with a regex.
@@ -20,6 +22,7 @@ module.exports = async (req, res, next) => {
             });
         }
     } else {
+        //If the initial request is malformed, we'll immediately send a response to the frontend
         res.status(400).send({
             error: {
                 status: 400,

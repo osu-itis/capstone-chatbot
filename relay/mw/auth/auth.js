@@ -12,7 +12,6 @@ sm = require('./auth_aws_sm');
 module.exports = {
     getCreds: async(id) => {
         var creds;
-        //creds = await csvparser(id);
         creds = await sm(id);
         return creds;
     }
