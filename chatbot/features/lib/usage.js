@@ -14,23 +14,23 @@ const usage = {
         text: 'List all resources'
     },
     'listbound': {
-        comm: 'listbound <resource>',
+        comm: 'listbound \\<resource\\>',
         text: 'List all resources bound to another resource'
     },
     'status': {
-        comm: 'status <resource>',
+        comm: 'status \\<resource\\>',
         text: 'Display the status of a resource'
     },
     'enable': {
-        comm: 'enable <resource>',
+        comm: 'enable \\<resource\\>',
         text: 'Enable a resource by name'
     },
     'disable': {
-        comm: 'disable <resource> [delay: optional, default=0]',
+        comm: 'disable \\<resource\\> [delay: optional, default=0]',
         text: 'Disable a resource gently by name with an optional delay (seconds)'
     },
     'disablenow': {
-        comm: 'disablenow <resource> [delay: optional, default=0]',
+        comm: 'disablenow \\<resource\\> [delay: optional, default=0]',
         text: 'Disable a resource (non-gently) by name with an optional delay (seconds)'
     },
     'request-auth':  {
