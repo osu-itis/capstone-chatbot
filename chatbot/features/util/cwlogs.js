@@ -47,7 +47,7 @@ module.exports = (group) => {
                 }
             });
         },
-        /*  This is specialized for our use case, it will generate objects in a standard format.
+        /*  This is specialized for our use case (reponses from our relay), it will generate objects in a standard format.
         */
         make: (request, res) => {
             return {

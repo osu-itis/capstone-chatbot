@@ -26,18 +26,23 @@ module.exports = {
             }
         });
     },
+    //This is passed through to the nitro_list.js file
     vServerListAllNames: async(baseURL, token) => {
         return await nitroList.vServerListAllNames(baseURL,token);
     },
+    //This is passed through to the nitro_list.js file
     serviceGroupListAllNames: async(baseURL, token) => {
         return await nitroList.serviceGroupListAllNames(baseURL,token);
     },
+    //This is passed through to the nitro_list.js file
     serviceListAllNames: async(baseURL, token) => {
         return await nitroList.serviceListAllNames(baseURL,token);
     },
+    //This is passed through to the nitro_list.js file
     serverListAllNames: async(baseURL, token) => {
         return await nitroList.serverListAllNames(baseURL,token);
     },
+    //Accepts a vServer name, parses bound entities and returns them
     listVServerBoundEntities: async(baseURL, token, vServer) => {
         let output = {};
         let url = baseURL+"/nitro/v1/config/lbvserver_binding/"+vServer;
@@ -62,6 +67,7 @@ module.exports = {
         if(output instanceof NitroError) throw output;
         else return output;
     },
+    //Accepts a servicegroup name, parses bound entities and returns them
     listServiceGroupBoundEntities: async(baseURL, token, serviceGroup) => {
         let output = {};
         let url = baseURL+"/nitro/v1/config/servicegroup_binding/"+serviceGroup;
@@ -81,6 +87,7 @@ module.exports = {
         if(output instanceof NitroError) throw output;
         else return output;
     },
+    //Accepts a service name, parses bound entities and returns them
     listServiceBoundEntity: async(baseURL, token, service) => {
         let output = {};
         let url = baseURL+"/nitro/v1/config/service/"+service;
@@ -98,6 +105,8 @@ module.exports = {
         if(output instanceof NitroError) throw output;
         else return output;
     },
+    //Accepts a vServer name, queries for specific stats.
+    //To modify the stats returned, add to the url variable and the output object (The frontend will display whatever you send it)
     vServerListStats: async (baseURL, token, vServer) => {
         let output = {};
         let url = baseURL+"/nitro/v1/config/lbvserver/"+vServer+"?attrs=name,ipv46,port,curstate,effectivestate,totalservices,activeservices";
@@ -122,6 +131,8 @@ module.exports = {
         if(output instanceof NitroError) throw output;
         else return output;
     },
+    //Accepts a servicegroup name, queries for specific stats.
+    //To modify the stats returned, add to the url variable and the output object (The frontend will display whatever you send it)
     serviceGroupListStats: async(baseURL, token, serviceGroup) => {
         let output = {};
         let url = baseURL+"/nitro/v1/config/servicegroup/"+serviceGroup+"?attrs=servicegroupname,numofconnections,state";
@@ -143,6 +154,8 @@ module.exports = {
         if(output instanceof NitroError) throw output;
         else return output;
     },
+    //Accepts a service name, queries for specific stats.
+    //To modify the stats returned, add to the url variable and the output object (The frontend will display whatever you send it)
     serviceListStats: async(baseURL, token, service) => {
         let output = {};
         let url = baseURL+"/nitro/v1/config/service/"+service+"?args=internal:false&attrs=name,numofconnections,servername,ipaddress,port,svrstate";
@@ -167,6 +180,8 @@ module.exports = {
         if(output instanceof NitroError) throw output;
         else return output;
     },
+    //Accepts a server name, queries for specific stats.
+    //To modify the stats returned, add to the url variable and the output object (The frontend will display whatever you send it)
     serverListStats: async(baseURL, token, server) => {
         let output = {};
         let url = baseURL+"/nitro/v1/config/server/"+server+"?args=internal:false&attrs=name,ipaddress,state";

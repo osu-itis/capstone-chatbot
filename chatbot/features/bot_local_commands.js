@@ -6,6 +6,9 @@ const usage = require('./lib/usage');
 const logGroup = 'NitroChatbot';
 const auth_log_lib = require('./util/cwlogs')(logGroup);
 
+//Each of these events below match potential events that may be triggered by the user.
+//This file contains commands that do not need to query the Relay.
+//Each event matches a support command with a regex.
 module.exports = function (controller) {
 
     //help : Shows usage text
@@ -28,6 +31,7 @@ module.exports = function (controller) {
         } catch (e) {
             await bot.reply(message, "Error: " + e);
         }
+        //Sends a log message to the log stream "RequestedAuths" with the following object format:
         auth_log_lib.send('RequestedAuths' ,{
             "ATTENTION": cmd.command,
             "Name": usr.name,

@@ -28,8 +28,24 @@ app.use(bodyParser.json());
 
 //auth_mw places 3 properties in req.auth: url, username, password
 app.use(auth_mw);
+
+//This middleware tests our totp password (generated from the shared symmetric key).
+//If the totp password is invalid or missing, the request is immeditaely responded to and it will never hit the routes below
 app.use(totp_test_mw(process.env.TOTP_KEY, 1));
+
+//If the request makes it this far, it will attempt to log into Nitro.
+//This middleware will leave a Nitro object in the request at req.nitro
 app.use(nitro_login_mw);
+
+//Each of the express routes below follows the same pattern:
+// gather the body as a JSON
+// Use the nitro object to make the matching request
+// If it throws an error, pass the error to the error handler
+// Otherwise send the result as the response body with 200 (OK) at the status
+
+//Note: All request logic is contained within the Nitro object library,
+//  This is to keep the file clean and readable.
+//  See /lib/nitro/nitro.js to view individual route logic (Also this is where to add more nitro commands for future expansion)
 
 //POST /api/listall
 app.post('/api/listall', validate({body: schema.api_listall_schema}), async (req, res, next) => {
@@ -125,8 +141,11 @@ app.use( (err, req, res, next) => {
             }
         };
         res.status(400).send(responseData);
+    //If the error is an instance of Nitro Error, we know the error came from our nitro object
+    //  As such, it has these specific fields to populate the status code and response body
     } else if (err instanceof NitroError) {
         res.status(err.status).send({"error":err})
+    //Otherwise something else happened, shouldn't be hitting this block, but it's here anyways
     } else {
         next(err); //pass error if not matched
     }
@@ -140,4 +159,5 @@ app.use('*', (req, res) => {
         }
     });
 });
+//Start the relay
 app.listen(port, () => console.log(`Relay listening on port ${port}!`));
