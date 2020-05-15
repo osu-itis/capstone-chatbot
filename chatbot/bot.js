@@ -8,10 +8,6 @@
 const { Botkit } = require('botkit');
 const { BotkitCMSHelper } = require('botkit-plugin-cms');
 
-// Import a platform-specific adapter for botframework.
-
-const { MongoDbStorage } = require('botbuilder-storage-mongodb');
-
 // To read credentials from file
 const fs = require('fs');
 
@@ -19,11 +15,7 @@ const fs = require('fs');
 require('dotenv').config();
 
 let storage = null;
-if (process.env.MONGO_URI) {
-    storage = mongoStorage = new MongoDbStorage({
-        url : process.env.MONGO_URI,
-    });
-}
+
 
 //Reading app id and password from file
 let app_id, app_pw, contents;
