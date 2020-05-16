@@ -1,6 +1,6 @@
 # Nitro Chatbot (Capstone Group CS63)
 
-## Progress Post-Code Review
+## Progress Post-Code Review (Updated May 15th)
 
 ### Fixed Bugs
 During the live demo of the code review, I spotted 2 small production errors that have been resolved. Please view the links for more description of the issue and it's resolution.
@@ -30,7 +30,9 @@ With this system, we find that while additional testing may be possible (essenti
 All feedback we received during the code review agree that our project meets the requirements given in the updated version of the requirements document.
 
 ### Deployment
-Beyond this, we know that our client would like to see at least a Cloudformation template that accurately describes our AWS configuration. This will be the final piece of our project to be submitted to this repository.
+Although not this is not a strict requirement set forth in the requirements document, we know that our client would like to see a Cloudformation template that accurately describes our AWS configuration. To this end, the final submission to our repository before code freeze is within a new folder "deployment". This contains a json file to be used to deployment the required resources and standup the instances required to use our project. This can be seen in [Pull Request #21](https://github.com/osu-itis/capstone-chatbot/pull/21).
+
+That's it for our code review response, everything below this line is from before May 1st. Thanks!
 
 ## May 1st: Note to Code Review Teams
 Running this project locally without major edits to the code will be impossible. Portions of this code require an AWS with specific resources configured in a specific way. During code review I will be sharing my screen and allow individuals to test inputs if they would like to test functionality. This project is currently running and operational within Microsoft Teams (which can also be demonstrated and tested during the review).
