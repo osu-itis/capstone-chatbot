@@ -1,0 +1,897 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "AWS CloudFormation Template for NitroChatbot (CS63, Capstone, Spring 2020)",
+    "Parameters": {
+        "KeyName": {
+            "Description": "Name of an existing EC2 KeyPair to enable SSH access to the instance",
+            "Type": "AWS::EC2::KeyPair::KeyName",
+            "ConstraintDescription": "must be the name of an existing EC2 KeyPair."
+        },
+        "InstanceType": {
+            "Description": "WebServer EC2 instance type",
+            "Type": "String",
+            "Default": "t2.micro",
+            "AllowedValues": [
+                "t1.micro","t2.nano","t2.micro","t2.small","t2.medium","t2.large","m1.small","m1.medium","m1.large","m1.xlarge","m2.xlarge","m2.2xlarge","m2.4xlarge",
+                "m3.medium","m3.large","m3.xlarge","m3.2xlarge","m4.large","m4.xlarge","m4.2xlarge","m4.4xlarge","m4.10xlarge","c1.medium","c1.xlarge","c3.large",
+                "c3.xlarge","c3.2xlarge","c3.4xlarge","c3.8xlarge","c4.large","c4.xlarge","c4.2xlarge","c4.4xlarge","c4.8xlarge","g2.2xlarge","g2.8xlarge",
+                "r3.large","r3.xlarge","r3.2xlarge","r3.4xlarge","r3.8xlarge","i2.xlarge","i2.2xlarge","i2.4xlarge","i2.8xlarge","d2.xlarge","d2.2xlarge","d2.4xlarge",
+                "d2.8xlarge","hi1.4xlarge","hs1.8xlarge","cr1.8xlarge","cc2.8xlarge","cg1.4xlarge"
+            ],
+            "ConstraintDescription": "must be a valid EC2 instance type."
+        },
+        "SSHLocation": {
+            "Description": "The IP address range that can be used to SSH to the EC2 instances",
+            "Type": "String",
+            "MinLength": "9",
+            "MaxLength": "18",
+            "Default": "0.0.0.0/0",
+            "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+            "ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x/x."
+        },
+        "TotpKey": {
+            "Description": "Symmetric Key to generate TOTP keys",
+            "Type": "String",
+            "MinLength":"32",
+            "MaxLength":"32",
+            "AllowedPattern":"([A-Z2-7]){32}",
+            "ConstraintDescription": "must be a valid Base32 (A-Z, 2-7) and exactly 32 digits long"
+        },
+        "RelayUrl": {
+            "Description": "Enter the external URL to be used to access the relay",
+            "Type": "String",
+            "AllowedPattern":"^.*[^\/]$",
+            "ConstraintDescription": "The URL should not end with a forward-slash"
+        },
+        "MicrosoftAppId": {
+            "Description": "Enter the Microsoft App ID for the bot",
+            "Type": "String"
+        },
+        "MicrosoftAppPassword": {
+            "Description": "Enter a valid access key for your Microsoft App",
+            "Type": "String"
+        },
+        "SSLCert": {
+            "Description": "Enter the ARN for the SSL Certificate used for HTTPS communication with the Chatbot and Relay",
+            "Type": "String"
+        }
+    },
+    "Mappings": {
+        "AWSInstanceType2Arch": {
+            "t1.micro": { "Arch": "HVM64" },
+            "t2.nano": { "Arch": "HVM64" },
+            "t2.micro": { "Arch": "HVM64" },
+            "t2.small": { "Arch": "HVM64" },
+            "t2.medium": { "Arch": "HVM64" },
+            "t2.large": { "Arch": "HVM64" },
+            "m1.small": { "Arch": "HVM64" },
+            "m1.medium": { "Arch": "HVM64" },
+            "m1.large": { "Arch": "HVM64" },
+            "m1.xlarge": { "Arch": "HVM64" },
+            "m2.xlarge": { "Arch": "HVM64" },
+            "m2.2xlarge": { "Arch": "HVM64" },
+            "m2.4xlarge": { "Arch": "HVM64" },
+            "m3.medium": { "Arch": "HVM64" },
+            "m3.large": { "Arch": "HVM64" },
+            "m3.xlarge": { "Arch": "HVM64" },
+            "m3.2xlarge": { "Arch": "HVM64" },
+            "m4.large": { "Arch": "HVM64" },
+            "m4.xlarge": { "Arch": "HVM64" },
+            "m4.2xlarge": { "Arch": "HVM64" },
+            "m4.4xlarge": { "Arch": "HVM64"},
+            "m4.10xlarge": { "Arch": "HVM64"},
+            "c1.medium": { "Arch": "HVM64" },
+            "c1.xlarge": { "Arch": "HVM64" },
+            "c3.large": { "Arch": "HVM64"  },
+            "c3.xlarge": { "Arch": "HVM64" },
+            "c3.2xlarge": { "Arch": "HVM64" },
+            "c3.4xlarge": { "Arch": "HVM64" },
+            "c3.8xlarge": { "Arch": "HVM64"  },
+            "c4.large": {  "Arch": "HVM64" },
+            "c4.xlarge": { "Arch": "HVM64" },
+            "c4.2xlarge": { "Arch": "HVM64" },
+            "c4.4xlarge": {  "Arch": "HVM64" },
+            "c4.8xlarge": { "Arch": "HVM64" },
+            "g2.2xlarge": { "Arch": "HVMG2" },
+            "g2.8xlarge": { "Arch": "HVMG2" },
+            "r3.large": { "Arch": "HVM64" },
+            "r3.xlarge": { "Arch": "HVM64" },
+            "r3.2xlarge": { "Arch": "HVM64"},
+            "r3.4xlarge": { "Arch": "HVM64" },
+            "r3.8xlarge": { "Arch": "HVM64" },
+            "i2.xlarge": { "Arch": "HVM64" },
+            "i2.2xlarge": { "Arch": "HVM64" },
+            "i2.4xlarge": { "Arch": "HVM64" },
+            "i2.8xlarge": { "Arch": "HVM64" },
+            "d2.xlarge": { "Arch": "HVM64" },
+            "d2.2xlarge": { "Arch": "HVM64" },
+            "d2.4xlarge": { "Arch": "HVM64" },
+            "d2.8xlarge": { "Arch": "HVM64" },
+            "hi1.4xlarge": { "Arch": "HVM64" },
+            "hs1.8xlarge": { "Arch": "HVM64" },
+            "cr1.8xlarge": { "Arch": "HVM64" },
+            "cc2.8xlarge": { "Arch": "HVM64" }
+        },
+        "AWSInstanceType2NATArch": {
+            "t1.micro": { "Arch": "NATHVM64" },
+            "t2.nano": { "Arch": "NATHVM64" },
+            "t2.micro": { "Arch": "NATHVM64" },
+            "t2.small": { "Arch": "NATHVM64" },
+            "t2.medium": { "Arch": "NATHVM64" },
+            "t2.large": { "Arch": "NATHVM64" },
+            "m1.small": { "Arch": "NATHVM64" },
+            "m1.medium": { "Arch": "NATHVM64" },
+            "m1.large": { "Arch": "NATHVM64" },
+            "m1.xlarge": { "Arch": "NATHVM64" },
+            "m2.xlarge": { "Arch": "NATHVM64" },
+            "m2.2xlarge": { "Arch": "NATHVM64" },
+            "m2.4xlarge": { "Arch": "NATHVM64" },
+            "m3.medium": { "Arch": "NATHVM64" },
+            "m3.large": { "Arch": "NATHVM64" },
+            "m3.xlarge": { "Arch": "NATHVM64" },
+            "m3.2xlarge": { "Arch": "NATHVM64" },
+            "m4.large": { "Arch": "NATHVM64" },
+            "m4.xlarge": { "Arch": "NATHVM64" },
+            "m4.2xlarge": { "Arch": "NATHVM64" },
+            "m4.4xlarge": { "Arch": "NATHVM64" },
+            "m4.10xlarge": { "Arch": "NATHVM64" },
+            "c1.medium": { "Arch": "NATHVM64" },
+            "c1.xlarge": { "Arch": "NATHVM64" },
+            "c3.large": { "Arch": "NATHVM64" },
+            "c3.xlarge": { "Arch": "NATHVM64" },
+            "c3.2xlarge": { "Arch": "NATHVM64" },
+            "c3.4xlarge": { "Arch": "NATHVM64" },
+            "c3.8xlarge": { "Arch": "NATHVM64" },
+            "c4.large": { "Arch": "NATHVM64" },
+            "c4.xlarge": { "Arch": "NATHVM64" },
+            "c4.2xlarge": { "Arch": "NATHVM64" },
+            "c4.4xlarge": { "Arch": "NATHVM64" },
+            "c4.8xlarge": { "Arch": "NATHVM64" },
+            "g2.2xlarge": { "Arch": "NATHVMG2" },
+            "g2.8xlarge": { "Arch": "NATHVMG2" },
+            "r3.large": { "Arch": "NATHVM64" },
+            "r3.xlarge": { "Arch": "NATHVM64" },
+            "r3.2xlarge": { "Arch": "NATHVM64" },
+            "r3.4xlarge": { "Arch": "NATHVM64" },
+            "r3.8xlarge": { "Arch": "NATHVM64" },
+            "i2.xlarge": { "Arch": "NATHVM64" },
+            "i2.2xlarge": { "Arch": "NATHVM64" },
+            "i2.4xlarge": { "Arch": "NATHVM64" },
+            "i2.8xlarge": { "Arch": "NATHVM64" },
+            "d2.xlarge": { "Arch": "NATHVM64" },
+            "d2.2xlarge": { "Arch": "NATHVM64" },
+            "d2.4xlarge": { "Arch": "NATHVM64" },
+            "d2.8xlarge": { "Arch": "NATHVM64" },
+            "hi1.4xlarge": { "Arch": "NATHVM64" },
+            "hs1.8xlarge": { "Arch": "NATHVM64" },
+            "cr1.8xlarge": { "Arch": "NATHVM64" },
+            "cc2.8xlarge": { "Arch": "NATHVM64" }
+        },
+        "AWSRegionArch2AMI": {
+            "eu-north-1"        : {"HVM64": "ami-0f630db6194a81ad0" },
+            "ap-south-1"        : {"HVM64": "ami-03b5297d565ef30a6" },
+            "eu-west-3"        : {"HVM64": "ami-07eda9385feb1e969" },
+            "eu-west-2"        : {"HVM64": "ami-0cb790308f7591fa6" },
+            "eu-west-1"        : {"HVM64": "ami-04d5cc9b88f9d1d39" },
+            "ap-northeast-2"        : {"HVM64": "ami-0db78afd3d150fc18" },
+            "ap-northeast-1"        : {"HVM64": "ami-052652af12b58691f" },
+            "sa-east-1"        : {"HVM64": "ami-0b032e878a66c3b68" },
+            "ca-central-1"        : {"HVM64": "ami-0bf54ac1b628cf143" },
+            "ap-southeast-1"        : {"HVM64": "ami-0cbc6aae997c6538a" },
+            "ap-southeast-2"        : {"HVM64": "ami-08fdde86b93accf1c" },
+            "eu-central-1"        : {"HVM64": "ami-0ec1ba09723e5bfac" },
+            "us-east-1"        : {"HVM64": "ami-0fc61db8544a617ed" },
+            "us-east-2"        : {"HVM64": "ami-0e01ce4ee18447327" },
+            "us-west-1"        : {"HVM64": "ami-09a7fe78668f1e2c0" },
+            "us-west-2"        : {"HVM64": "ami-0ce21b51cb31a48b8" }
+        }
+    },
+    "Resources": {
+        "NitroVPC": {
+            "Type" : "AWS::EC2::VPC",
+            "Properties" : {
+                "CidrBlock" : "10.0.0.0/16",
+                "EnableDnsHostnames": true,
+                "EnableDnsSupport": true
+
+              }
+        },
+        "NitroIG": {
+            "Type": "AWS::EC2::InternetGateway"
+        },
+        "NitroGatewayAttach": {
+            "Type": "AWS::EC2::VPCGatewayAttachment",
+            "Properties": {
+                "VpcId": {"Ref" : "NitroVPC"},
+                "InternetGatewayId": {"Ref": "NitroIG"}
+            }
+        },
+        "CBSubnetA": {
+            "Type" : "AWS::EC2::Subnet",
+            "Properties" : {
+                "AvailabilityZone" : "us-west-2a",
+                "CidrBlock" : "10.0.1.0/24",
+                "MapPublicIpOnLaunch": true,
+                "VpcId" : {"Ref":"NitroVPC"} 
+            }
+        },
+        "CBSubnetB": {
+            "Type" : "AWS::EC2::Subnet",
+            "Properties" : {
+                "AvailabilityZone" : "us-west-2b",
+                "CidrBlock" : "10.0.2.0/24",
+                "MapPublicIpOnLaunch": true,
+                "VpcId" : {"Ref":"NitroVPC"} 
+            }
+        },
+        "RelaySubnetA": {
+            "Type" : "AWS::EC2::Subnet",
+            "Properties" : {
+                "AvailabilityZone" : "us-west-2a",
+                "CidrBlock" : "10.0.3.0/24",
+                "MapPublicIpOnLaunch": true,
+                "VpcId" : {"Ref":"NitroVPC"} 
+            }
+        },
+        "RelaySubnetB": {
+            "Type" : "AWS::EC2::Subnet",
+            "Properties" : {
+                "AvailabilityZone" : "us-west-2b",
+                "CidrBlock" : "10.0.4.0/24",
+                "MapPublicIpOnLaunch": true,
+                "VpcId" : {"Ref":"NitroVPC"} 
+            }
+        },
+        "RouteTable": {
+            "Type": "AWS::EC2::RouteTable",
+            "Properties": {
+                "VpcId": { "Ref" : "NitroVPC"}
+            }
+        },
+        "InternetRoute": {
+            "Type": "AWS::EC2::Route",
+            "DependsOn": "NitroGatewayAttach",
+            "Properties": {
+                "DestinationCidrBlock": "0.0.0.0/0",
+                "GatewayId": {"Ref": "NitroIG"},
+                "RouteTableId": { "Ref": "RouteTable"}
+            }
+        },
+        "SubRTAssocCBA" : {
+            "Type": "AWS::EC2::SubnetRouteTableAssociation",
+            "Properties": {
+                "RouteTableId": { "Ref" : "RouteTable"},
+                "SubnetId": { "Ref" : "CBSubnetA"}
+            }
+        },
+        "SubRTAssocCBB" : {
+            "Type": "AWS::EC2::SubnetRouteTableAssociation",
+            "Properties": {
+                "RouteTableId": { "Ref" : "RouteTable"},
+                "SubnetId": { "Ref" : "CBSubnetB"}
+            }
+        },
+        "SubRTAssocRelayA" : {
+            "Type": "AWS::EC2::SubnetRouteTableAssociation",
+            "Properties": {
+                "RouteTableId": { "Ref" : "RouteTable"},
+                "SubnetId": { "Ref" : "RelaySubnetA"}
+            }
+        },
+        "SubRTAssocRelayB" : {
+            "Type": "AWS::EC2::SubnetRouteTableAssociation",
+            "Properties": {
+                "RouteTableId": { "Ref" : "RouteTable"},
+                "SubnetId": { "Ref" : "RelaySubnetB"}
+            }
+        },
+        "ChatbotSG": {
+            "Type": "AWS::EC2::SecurityGroup",
+            "Properties": {
+                "GroupDescription": "Security Group for Chatbot instance",
+                "SecurityGroupIngress": [
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "22",
+                        "ToPort": "22",
+                        "CidrIp": {
+                            "Ref": "SSHLocation"
+                        }
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "3000",
+                        "ToPort": "3000",
+                        "SourceSecurityGroupId": { "Fn::GetAtt": ["LBChatbotSG", "GroupId"] }
+                    }
+                ],
+                "VpcId": { "Ref": "NitroVPC" }
+            },
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "f079a6bf-3ae3-4d23-9f37-6c8f8dee9618"
+                }
+            }
+        },
+        "RelaySG": {
+            "Type": "AWS::EC2::SecurityGroup",
+            "Properties": {
+                "GroupDescription": "Security Group for Relay instance",
+                "SecurityGroupIngress": [
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "22",
+                        "ToPort": "22",
+                        "CidrIp": {
+                            "Ref": "SSHLocation"
+                        }
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "3001",
+                        "ToPort": "3001",
+                        "SourceSecurityGroupId": { "Fn::GetAtt": ["LBRelaySG", "GroupId"] }
+                    }
+                ],
+                "VpcId": { "Ref": "NitroVPC" }
+            },
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "5505d324-34c9-4862-83f3-4b96eba0b207"
+                }
+            }
+        },
+        "LBChatbotSG": {
+            "Type": "AWS::EC2::SecurityGroup",
+            "Properties": {
+                "GroupDescription": "Security Group for Load-balancer for Chatbot instance",
+                "SecurityGroupIngress": [
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "443",
+                        "ToPort": "443",
+                        "CidrIp": "0.0.0.0/0"
+                    }
+                ],
+                "VpcId": { "Ref": "NitroVPC" }
+            },
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "5a9ef09b-ac4c-4774-8562-a85f2b098dbe"
+                }
+            }
+        },
+        "LBRelaySG": {
+            "Type": "AWS::EC2::SecurityGroup",
+            "Properties": {
+                "GroupDescription": "Security Group for Load-balancer for Relay instance",
+                "SecurityGroupIngress": [
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "443",
+                        "ToPort": "443",
+                        "CidrIp": "0.0.0.0/0"
+                    }
+                ],
+                "VpcId": { "Ref": "NitroVPC" }
+            },
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "1ff78907-f487-46c0-ada7-51fec8f9e5b6"
+                }
+            }
+        },
+        "ChatbotProfile": {
+            "Type" : "AWS::IAM::InstanceProfile",
+            "Properties" : {
+                "Roles" : [ {"Ref": "CloudWatchLogsRole" }]
+                }
+        },
+        "RelayProfile": {
+            "Type" : "AWS::IAM::InstanceProfile",
+            "Properties" : {
+                "Roles" : [ {"Ref": "SecretsManagerRole"} ]
+                }
+        },
+        "SecretsManagerRole": {
+            "Type" : "AWS::IAM::Role",
+            "Properties" : {
+                "AssumeRolePolicyDocument" : {
+                    "Version": "2012-10-17",
+                    "Statement": {
+                        "Effect": "Allow",
+                        "Principal": {
+                            "Service": ["ec2.amazonaws.com"]
+                        },
+                        "Action": [
+                            "sts:AssumeRole"
+                        ]
+                    }
+                },
+                "Policies" : [ {
+                    "PolicyDocument": {
+                        "Version": "2012-10-17",
+                        "Statement": [
+                            {
+                                "Effect": "Allow",
+                                "Action": [
+                                    "secretsmanager:GetResourcePolicy",
+                                    "secretsmanager:GetSecretValue",
+                                    "secretsmanager:DescribeSecret",
+                                    "secretsmanager:ListSecretVersionIds"
+                                ],
+                                "Resource": [
+                                    "*"
+                                ]
+                            }
+                        ]
+                    },
+                    "PolicyName": "ReadSecretManagerPolicy"
+                } ],
+                "RoleName" : "SecretsManagerRole"
+            }
+        },
+        "CloudWatchLogsRole": {
+            "Type" : "AWS::IAM::Role",
+            "Properties" : {
+                "AssumeRolePolicyDocument" : {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Service": ["ec2.amazonaws.com"]
+                            },
+                            "Action": ["sts:AssumeRole"]
+                        }
+                    ]
+                },
+                "Policies" : [{
+                    "PolicyDocument": {
+                        "Version": "2012-10-17",
+                        "Statement": [
+                            {
+                                "Effect": "Allow",
+                                "Action": [
+                                    "logs:CreateLogGroup",
+                                    "logs:CreateLogStream",
+                                    "logs:PutLogEvents",
+                                    "logs:DescribeLogStreams"
+                                ],
+                                "Resource": [
+                                    "arn:aws:logs:*:*:*"
+                                ]
+                            }
+                        ]
+                    },
+                    "PolicyName": "ReadCloudWatchLogsPolicy"
+                }],
+                "RoleName" : "CloudWatchLogsRole"
+            }
+        },
+        "Chatbot": {
+            "Type": "AWS::EC2::Instance",
+            "Properties": {
+                "AvailabilityZone": "us-west-2a",
+                "InstanceType": { "Ref": "InstanceType"},
+                "SecurityGroupIds": [ { "Fn::GetAtt": ["ChatbotSG", "GroupId"] } ],
+                "KeyName": { "Ref": "KeyName" },
+                "IamInstanceProfile": {"Ref": "ChatbotProfile"},
+                "ImageId": { "Fn::FindInMap": [ "AWSRegionArch2AMI", { "Ref": "AWS::Region" }, { "Fn::FindInMap": [ "AWSInstanceType2Arch", { "Ref": "InstanceType" }, "Arch" ] } ] },
+                "SubnetId": { "Ref": "CBSubnetA"},
+                "UserData": { "Fn::Base64" : { "Fn::Join" : ["", [
+                    "#!/bin/bash -xe\n",
+                    "yum install -y aws-cfn-bootstrap\n",
+                    "touch ~/.bashrc\n",
+                    "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.34.0/install.sh | bash\n",
+                    "export NVM_DIR=\"/.nvm\"\n",
+                    "[ -s \"$NVM_DIR/nvm.sh\" ] && \\. \"$NVM_DIR/nvm.sh\"\n",
+                    "[ -s \"$NVM_DIR/bash_completion\" ] && \\. \"$NVM_DIR/bash_completion\"\n",
+                    ". /.nvm/nvm.sh\n",
+                    "nvm install v14.2.0\n",
+                    "sudo yum install -y git\n",
+                    "git clone https://github.com/osu-itis/capstone-chatbot.git\n",
+                    "# Install the files and packages from the metadata\n",
+                    "/opt/aws/bin/cfn-init -v ",
+                    "         --stack ", { "Ref" : "AWS::StackName" },
+                    "         --resource Chatbot ",
+                    "         --configsets Install ",
+                    "         --region ", { "Ref" : "AWS::Region" }, "\n",
+                    "cd /capstone-chatbot/chatbot/\n",
+                    "npm install\n",
+                    "npm install -g pm2\n",
+                    "ln -s /.nvm/versions/node/v14.2.0/bin/node /usr/bin/node\n",
+                    "ln -s /.nvm/versions/node/v14.2.0/lib/node_modules/pm2/bin /usr/bin/pm2\n",
+                    "pm2 start bot.js\n",
+                    "pm2 save\n"
+               ]]}}
+            },
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "920fd7bf-f529-47a9-8492-c52eb01e0b7f"
+                },
+                "AWS::CloudFormation::Init" : {
+                    "configSets" : {
+                      "Install" : [ "Install" ]
+                    },
+                    "Install": {
+                        "packages" : {
+                            "yum" : { "git": [] }
+                        },
+                        "files": {
+                            "/home/ec2-user/capstone-chatbot/chatbot/.app_creds": {
+                                "content": {"Fn::Join": [ "", [
+                                    { "Ref":"MicrosoftAppId"}, "\n",
+                                    { "Ref":"MicrosoftAppPassword"}, "\n"
+                                ]]},
+                                "mode" : "00664",
+                                "owner": "ec2-user",
+                                "group": "ec2-user"
+                            },
+                            "/home/ec2-user/capstone-chatbot/chatbot/.env": {
+                                "content": {"Fn::Join": [ "", [
+                                    "RELAY_URL=",{"Ref": "RelayUrl"}, "\n",
+                                    "TOTP_KEY=",{"Ref": "TotpKey"}, "\n"
+                                ]]},
+                                "mode" : "00664",
+                                "owner": "ec2-user",
+                                "group": "ec2-user"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "Relay": {
+            "Type": "AWS::EC2::Instance",
+            "Properties": {
+                "AvailabilityZone": "us-west-2a",
+                "InstanceType": { "Ref": "InstanceType"},
+                "SecurityGroupIds": [ { "Fn::GetAtt": ["RelaySG", "GroupId"] } ],
+                "KeyName": { "Ref": "KeyName" },
+                "IamInstanceProfile": {"Ref": "RelayProfile"},
+                "ImageId": { "Fn::FindInMap": [ "AWSRegionArch2AMI", { "Ref": "AWS::Region" }, { "Fn::FindInMap": [ "AWSInstanceType2Arch", { "Ref": "InstanceType" }, "Arch" ] } ] },
+                "SubnetId": { "Ref": "RelaySubnetA"},
+                "UserData": { "Fn::Base64" : { "Fn::Join" : ["", [
+                    "#!/bin/bash -xe\n",
+                    "yum install -y aws-cfn-bootstrap\n",
+                    "touch ~/.bashrc\n",
+                    "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.34.0/install.sh | bash\n",
+                    "export NVM_DIR=\"/.nvm\"\n",
+                    "[ -s \"$NVM_DIR/nvm.sh\" ] && \\. \"$NVM_DIR/nvm.sh\"\n",
+                    "[ -s \"$NVM_DIR/bash_completion\" ] && \\. \"$NVM_DIR/bash_completion\"\n",
+                    ". /.nvm/nvm.sh\n",
+                    "nvm install v14.2.0\n",
+                    "sudo yum install -y git\n",
+                    "git clone https://github.com/osu-itis/capstone-chatbot.git\n",
+                    "# Install the files and packages from the metadata\n",
+                    "/opt/aws/bin/cfn-init -v ",
+                    "         --stack ", { "Ref" : "AWS::StackName" },
+                    "         --resource Relay ",
+                    "         --configsets Install ",
+                    "         --region ", { "Ref" : "AWS::Region" }, "\n",
+                    "cd /capstone-chatbot/relay/\n",
+                    "npm install\n",
+                    "npm install -g pm2\n",
+                    "ln -s /.nvm/versions/node/v14.2.0/bin/node /usr/bin/node\n",
+                    "ln -s /.nvm/versions/node/v14.2.0/lib/node_modules/pm2/bin /usr/bin/pm2\n",
+                    "pm2 start relay.js\n",
+                    "pm2 save\n"
+               ]]}}
+            },
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "9d77d9f9-8c9f-4bd5-bf96-0b3d9566650c"
+                },
+                "AWS::CloudFormation::Init" : {
+                    "configSets" : {
+                    "Install" : [ "Install" ]
+                    },
+                    "Install": {
+                        "packages" : {
+                            "yum" : { "git": [] }
+                        },
+                        "files": {
+                            "/home/ec2-user/capstone-chatbot/relay/.env": {
+                                "content": {"Fn::Join": [ "", [
+                                    "PORT=3001\n",
+                                    "TOTP_KEY=",{"Ref": "TotpKey"}, "\n"
+                                ]]},
+                                "mode" : "00664",
+                                "owner": "ec2-user",
+                                "group": "ec2-user"
+                            }
+                        }
+                    }
+                }
+            }    
+        },
+        "LBChatbot": {
+            "Type": "AWS::ElasticLoadBalancingV2::LoadBalancer",
+            "Properties" : {
+                "IpAddressType" : "ipv4",
+                "Scheme" : "internet-facing",
+                "SecurityGroups" : [ { "Fn::GetAtt": ["LBChatbotSG", "GroupId"] } ],
+                "Subnets" : [ {"Ref": "CBSubnetA"},{"Ref": "CBSubnetB"} ],
+                "Type" : "application"
+              },
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "e68504e2-719a-43f1-bc24-c4691deceb38"
+                }
+            }
+        },
+        "LBRelay": {
+            "Type": "AWS::ElasticLoadBalancingV2::LoadBalancer",
+            "Properties" : {
+                "IpAddressType" : "ipv4",
+                "Scheme" : "internet-facing",
+                "SecurityGroups" : [ { "Fn::GetAtt": ["LBRelaySG", "GroupId"] } ],
+                "Subnets" : [ {"Ref": "RelaySubnetA"},{"Ref": "RelaySubnetB"} ],
+                "Type" : "application"
+              },
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "468f5994-d857-4489-9645-430043157c14"
+                }
+            }
+        },
+        "LBChatbotListener":{
+            "Type" : "AWS::ElasticLoadBalancingV2::Listener",
+            "Properties" : {
+                "Certificates" : [ {
+                    "CertificateArn": { "Ref": "SSLCert"}
+                } ],
+                "DefaultActions" : [ {
+                    "TargetGroupArn": { "Ref": "ChatbotTG"},
+                    "Type": "forward"
+                } ],
+                "LoadBalancerArn" : { "Ref": "LBChatbot"},
+                "Port" : 443,
+                "Protocol" : "HTTPS"
+              }
+        },
+        "LBRelayListener":{
+            "Type" : "AWS::ElasticLoadBalancingV2::Listener",
+            "Properties" : {
+                "Certificates" : [ {
+                    "CertificateArn": { "Ref": "SSLCert"}
+                } ],
+                "DefaultActions" : [ {
+                    "TargetGroupArn": { "Ref": "RelayTG"},
+                    "Type": "forward"
+                } ],
+                "LoadBalancerArn" : { "Ref": "LBRelay"},
+                "Port" : 443,
+                "Protocol" : "HTTPS"
+              }
+        },
+        "RelayTG": {
+            "Type": "AWS::ElasticLoadBalancingV2::TargetGroup",
+            "Properties": {
+                "Port": 3001,
+                "Protocol": "HTTP",
+                "Targets": [ 
+                    {
+                        "Id": { "Ref": "Relay" },
+                        "Port": 3001
+                    }
+                ],
+                "VpcId": { "Ref": "NitroVPC" }
+            },
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "d8425ab6-580d-4706-8ff6-01c8827afb0d"
+                }
+            }
+        },
+        "ChatbotTG": {
+            "Type": "AWS::ElasticLoadBalancingV2::TargetGroup",
+            "Properties": {
+                "Port": 3000,
+                "Protocol": "HTTP",
+                "Targets": [ 
+                    {
+                        "Id": { "Ref": "Chatbot" },
+                        "Port": 3000
+                    }
+                ],
+                "VpcId": { "Ref": "NitroVPC" }
+            },
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "2e858d8a-973d-478c-8d84-8b50e02768de"
+                }
+            }
+        }
+    },
+    "Outputs": {
+        "ChatbotPublicDNS": {
+            "Description": "Public DNS of the Chatbot Load Balancer (Use this for your DNS Record)",
+            "Value": {
+                "Fn::GetAtt": [
+                    "LBChatbot",
+                    "DNSName"
+                ]
+            }
+        },
+        "RelayPublicDNS": {
+            "Description": "Public DNS of the Relay Load Balancer (Use this for your DNS Record)",
+            "Value": {
+                "Fn::GetAtt": [
+                    "LBRelay",
+                    "DNSName"
+                ]
+            }
+        }
+    },
+    "Metadata": {
+        "AWS::CloudFormation::Designer": {
+            "f079a6bf-3ae3-4d23-9f37-6c8f8dee9618": {
+                "size": {
+                    "width": 60,
+                    "height": 60
+                },
+                "position": {
+                    "x": 70,
+                    "y": 80
+                },
+                "z": 1,
+                "embeds": []
+            },
+            "920fd7bf-f529-47a9-8492-c52eb01e0b7f": {
+                "size": {
+                    "width": 60,
+                    "height": 60
+                },
+                "position": {
+                    "x": 180,
+                    "y": 80
+                },
+                "z": 1,
+                "embeds": [],
+                "isassociatedwith": [
+                    "f079a6bf-3ae3-4d23-9f37-6c8f8dee9618"
+                ]
+            },
+            "9d77d9f9-8c9f-4bd5-bf96-0b3d9566650c": {
+                "size": {
+                    "width": 60,
+                    "height": 60
+                },
+                "position": {
+                    "x": 180,
+                    "y": 210
+                },
+                "z": 1,
+                "embeds": []
+            },
+            "5505d324-34c9-4862-83f3-4b96eba0b207": {
+                "size": {
+                    "width": 60,
+                    "height": 60
+                },
+                "position": {
+                    "x": 70,
+                    "y": 210
+                },
+                "z": 1,
+                "embeds": []
+            },
+            "34cad149-f1ce-49a2-8af9-94cc30ee481c": {
+                "size": {
+                    "width": 60,
+                    "height": 60
+                },
+                "position": {
+                    "x": 300,
+                    "y": 80
+                },
+                "z": 1,
+                "embeds": []
+            },
+            "125b6b55-ee0c-4cb6-ab56-dfd2f23c0060": {
+                "size": {
+                    "width": 60,
+                    "height": 60
+                },
+                "position": {
+                    "x": 300,
+                    "y": 210
+                },
+                "z": 1,
+                "embeds": []
+            },
+            "5a9ef09b-ac4c-4774-8562-a85f2b098dbe": {
+                "size": {
+                    "width": 60,
+                    "height": 60
+                },
+                "position": {
+                    "x": -50,
+                    "y": -10
+                },
+                "z": 1,
+                "embeds": []
+            },
+            "1ff78907-f487-46c0-ada7-51fec8f9e5b6": {
+                "size": {
+                    "width": 60,
+                    "height": 60
+                },
+                "position": {
+                    "x": -50,
+                    "y": 300
+                },
+                "z": 1,
+                "embeds": []
+            },
+            "db24e43f-8938-45c4-ac0f-a7eafd43b1f0": {
+                "source": {
+                    "id": "125b6b55-ee0c-4cb6-ab56-dfd2f23c0060"
+                },
+                "target": {
+                    "id": "9d77d9f9-8c9f-4bd5-bf96-0b3d9566650c"
+                },
+                "z": 1
+            },
+            "f3ea8df8-a560-4589-afab-9ebbbbb6af25": {
+                "source": {
+                    "id": "34cad149-f1ce-49a2-8af9-94cc30ee481c"
+                },
+                "target": {
+                    "id": "920fd7bf-f529-47a9-8492-c52eb01e0b7f"
+                },
+                "z": 1
+            },
+            "e68504e2-719a-43f1-bc24-c4691deceb38": {
+                "size": {
+                    "width": 60,
+                    "height": 60
+                },
+                "position": {
+                    "x": -50,
+                    "y": 80
+                },
+                "z": 1,
+                "embeds": []
+            },
+            "468f5994-d857-4489-9645-430043157c14": {
+                "size": {
+                    "width": 60,
+                    "height": 60
+                },
+                "position": {
+                    "x": -50,
+                    "y": 210
+                },
+                "z": 1,
+                "embeds": []
+            },
+            "d8425ab6-580d-4706-8ff6-01c8827afb0d": {
+                "size": {
+                    "width": 60,
+                    "height": 60
+                },
+                "position": {
+                    "x": 70,
+                    "y": 300
+                },
+                "z": 1,
+                "embeds": []
+            },
+            "2e858d8a-973d-478c-8d84-8b50e02768de": {
+                "size": {
+                    "width": 60,
+                    "height": 60
+                },
+                "position": {
+                    "x": 70,
+                    "y": -10
+                },
+                "z": 1,
+                "embeds": []
+            }
+        }
+    }
+}
