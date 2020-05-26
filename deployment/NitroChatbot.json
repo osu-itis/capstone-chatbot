@@ -187,6 +187,27 @@
         }
     },
     "Resources": {
+        "LogGroup": {
+            "Type" : "AWS::Logs::LogGroup",
+            "Properties" : {
+                "LogGroupName" : "NitroChatbot",
+                "RetentionInDays" : 30
+            }
+        },
+        "LogStream": {
+            "Type" : "AWS::Logs::LogStream",
+            "Properties" : {
+                "LogGroupName" : {"Ref": "LogGroup"},
+                "LogStreamName" : "UserLogs"
+            }
+        },
+        "AuthLogStream": {
+            "Type" : "AWS::Logs::LogStream",
+            "Properties" : {
+                "LogGroupName" : {"Ref": "LogGroup"},
+                "LogStreamName" : "RequestedAuths"
+            }
+        },
         "NitroVPC": {
             "Type" : "AWS::EC2::VPC",
             "Properties" : {
