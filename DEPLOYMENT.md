@@ -6,11 +6,10 @@ To deploy this project within AWS, a Cloudformation template deployment/NitroCha
 
 - Existing Key-Pair within AWS to assign to both instances (the template will prompt for this)
 - The bot needs to be registered with Microsoft's Bot Framework [here](https://dev.botframework.com/bots/new)
-- You'll need both the App ID and an access key (which needs to be generated seperately) when creating the stack from the template.
+- You'll need both the App ID and an access key (which needs to be generated separately) when creating the stack from the template.
 - URL for the Relay (this is given to the chatbot instance so that is can communicate with the relay using https).
 - Full ARN for a pre-generated SSL certificate. This is used by both application load balancers.
 - A TOTP Key. This is Base32 (A-Z,2-7) and must be 32 characters long. You can run the file totpgenks.js with node to generate a valid key.
-- In CloudWatchLogs create a group named `NitroChatbot` and 2 streams within `UserLogs` and `RequestedAuths`.
 
 ### Creating the Stack
 
@@ -41,8 +40,6 @@ username | <their_username>
 password | <their_password>
 
 ### Final Notes
-
-Creating the log group and streams was accidentally ommited from the template (sorry!), but should be easy to add in.
 
 I attempted to create a Macro to generate a TotpKey on stack creation, but could not get it to work (wasn't able to reference it from another template). However, I did include the work I did in the file NitroChatbotGenKey.json. This should be fixable with a little work.
 
