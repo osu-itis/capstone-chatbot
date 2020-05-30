@@ -1,0 +1,90 @@
+\subsubsection{Abstract}
+
+This document is an SRS (Software Requirement Specification) which outlines the client requirements for the proposed chatbot software.
+The chatbot will enable authenticated users to directly query the status, and modify configurations, for their load balanced resources.
+The requirements within this document serve as a contract with the client and will be used to judge the quality and completeness of the software upon it's 1.0 release.
+
+\subsubsection{User interface(UI)}
+
+\paragraph{Problem description}
+OSU IT Infrastructure uses Citrix NetScaler hardware to provide load balancing as a service to departments across campus.
+Load balancing is the process of distributing network traffic across multiple servers, allowing for scaleable pools of redundant servers.
+This process also improves server responsiveness and availability.
+Load balancing allows the university to provide the best accessibility to critical network resources.
+
+
+\paragraph{Overview}
+A ChatBot is proposed to solve the problem outlined in the previous section.
+If used in an authenticated environment common to all of the targeted users, performing common tasks could be more efficient.
+The ChatBot will accept commands from users, check their permissions, and query the NetScaler using an API.
+By creating an always-accessible interface for authenticated users, common tasks will be easy and quick to perform.
+Due to the need for proper authentication within the University's professional ecosystem, Microsoft Teams is the proposed platform for the ChatBot.The ChatBot will be written in Node.js using the Botkit framework.
+The Botkit framework is widely-used, well-documented, and portable to different applications.
+
+\paragraph{My role}
+My role in this project it to design a good and convenient user interface which user can use all features easily. Overall, the ChatBot on the interface should respond to the commands that is related to the load balancer, and it has ability to give the error message if the bot get the wrong commands. The interface also should has the features about how to use and settings which is user friendly. I would make the interface useful and good looking.
+
+\paragraph{Technology Points}
+\subparagraph{Bot Framework}
+ First of all, we need to decide which bot framework we want to use. This is the first step of our project so I need consider carefully of that. The main point is that we need choose a framework so the Bot can run successfully on the interface. It's important to because the framework should be efficient and high quality. I list three options for our bot framework.
+ 
+A. Botkit\\
+This kit is easy and convenient to use because its propose is "Building Blocks for Building Bots\cite{botkit}". In details, this unit is an open source designer apparatus for construct chat bots, applications and custom reconciliations for significant informing stages\cite{botkit}. It's also a part of the Microsoft Bot Framework. Botkit is a flexible tool for creating conversational software of all types. This is a good option because in the next step, we need to decide which platform we use and there is one option related to Microsoft teams. I also check the code it need is not very difficult to use. There is a tutorial on GitHub. Each Botkit bot is actually a Node.js app, made up of the Botkit core library, a basic web server, and the application logic and plugins that combine to make our bot special\cite{botkit}. 
+
+B. Botbuilder-teams\\
+Using Botbuilder-teams has many advantages. First of all, it is more professional and authority than the first option. We can create a notification-only bot that can directly send relevant information to your users in a channel or direct message\cite{createbot}. We can even incorporate our current bot based on the Bot Framework and support unique to the teams to make our project shine. The Microsoft Bot Builder SDK Team Extensions enable bots built using the Bot Builder SDK to easily consume the functionality of teams\cite{bbteam}. All bots are designed and prepared to use the Microsoft Bot Platform in Microsoft Teams\cite{createbot}. There is also a comprehensive guide on a website to help new users use this program. Teams App Studio is a tool that can help you create your application, and a bot-referencing app kit. It also provides a reaction management library and card specimens that can be programmed\cite{createbot}. Overall, this is also a good option to make a bot framework.\\
+\\
+C. Microsoft.Bot.Connector.Teams NuGet package\\
+NuGet is. NET's package manager. The NuGet client tools allow packages to be produced and consumed. The NuGet Gallery is the central repository of packages used by all writers and users of packages\cite{nuget}. NuGet packages include reusable software made available in our project by other developers. Using the NuGet Package Manager or the Package Manager Console, packages are installed in a Visual Studio plan. This article uses the famous Newtonsoft. Json package and a Windows Presentation Foundation (WPF) project to explain the method. The same process applies to any other .NET or .NET Core project\cite{nuget}.
+In my opinion, this option is more complex than other two because it provides less information. This would be hard for us to implement our bot so I would skip this option.
+
+
+From all three options above, we need to decide which bot framework fits all the requirements from the clients. In an attempt to future-proof the chatbot, it will be written using the Botkit Framework in Node.js. We need decide a method that fits the Node.js and allow the chatbot to provide quick access to the status and configuration options for the server pools that the users manage.
+
+\subparagraph{Unit Testing}
+Next step for user interface is unit testing. Unit testing is a method that test each function one by one and check whether each feature is working. This testing method is the process of testing the implemented code at a module level and it allows you to ensure that your developed modules are meeting the requirements which is also important. The following is three options I choose for doing the unit testing. 
+
+A. WebStorm (WS)\\
+This software is smart because it's really easy to use and do testing. I can run and debug tests with Karma, Mocha, Protractor, and Jest in WebStorm. I can get the test status instantly in the editor or in a convenient tree view from which you can switch to the test easily\cite{webstorm}. After I read the tutorial on the website, for example, it can lets you quickly jump from the source code to the related test file with the Go to test action\cite{webstorm}.I can also use the Structure view to quickly navigate through a test folder, showing the names of the tests and suites as well as other symbols specified in this document\cite{webstorm}. With WebStorm, I can test Node.js applications using numerous frameworks.
+
+B. NPM Testing\\
+In NPM testing, the advantage is that it can simple async testing library for node.js. Asynchronous software is better suited than other libraries as it uses callbacks to get tests.\cite{testing}. The advantage is that I just need enter the command "npm install testing" and then I can do the testing. Only add a test feature to my software after doing that, testing if the results are what to expect. Run an async test to read a file's contents and verify that it's not empty\cite{testing}. Really easy to use!
+
+C. Jasmine\\
+This is another unit testing method called Jasmine. Jasmine is a mimicker of user behavior which allows you to run user behavior-like test cases on your website. Jasmine is useful for transparency checking frontend, clicking clarity as well as UI responsiveness in various resolutions.Jasmine allows user behavior to be automated with customs delays and wait time for user behavior to be simulated.\cite{jsunit}. The advantages of using that is lower overhead due to almost zero external dependencies, comes with almost every required tool out of the box, supports frontend as well as backend tests, extensive documentation to use it with several frameworks\cite{jsunit}. This is also a good option for doing unit testing.
+
+ 
+ From the three options above, it's hard to choose which method we would use in our project. In my opinion, I would choose WebStorm as a method to do the unit testing. Overall, WebStorm is easy and convenient to use. It can help me to improve our code quality and reduce the errors we have. Also, the advantages to use that is efficient because it can let you quickly jump from the source code to the related test file with the Go to test action\cite{webstorm}. For our bot framework, we have a lot of tasks need to be tested. It's sensible to choose WebStorm as our unit testing method. Since we would decide to use Node.js to write bot framework so it's a wise choice to choose WebStorm testing.
+\\
+
+\subparagraph{Platform}
+After we have finished the design of the bot user interface, we need to choose a platform and implement our design to it. There are three platforms that are all good options for implement our project.
+
+A. Microsoft Teams \\
+Microsoft Teams is a collaborative network for interaction and collaboration incorporating ongoing workplace chat, video conferences, file storage (including file collaboration), and software integration. The software combines collaboration suite with the company's Office 365 subscription office and includes plugins that can be combined with services other than Windows\cite{teams}. This is a good choice for out platform. Teams allow organizations, groups, or teams to enter via a specific URL or invitation sent by a team manager or owner. Education teams enable admins and teachers to set up specific class teams, professional learning communities (PLCs), staff members, and everyone else\cite{teams}. The benefit to use that is it can easy to connect Node.js to the team which can implement our application well.
+
+B. Slack\\
+We can also implement our project on Slack! Overall, Slack is a multi-channel system in it. You can separate channels by team, task, customer, or anything else that is important to your company\cite{slack}. Unlike long email chains, team members can enter and leave channels when necessary\cite{slack}. Threads prevent side discussions from the subject or task at hand being derailed\cite{slack}. This is also a good option because there are many students and instructors using this platform for teaching and communication so users should be familiar to this platform. Also slack's security is trust-able.
+
+C. Discord \\
+Discord is also a good choice as it is a proprietary freeware VoIP software and online distribution platform for video gaming communities specializing in text, image, video and audio interaction between users on a chat channel\cite{discord}. Discord can require Internet relay chat servers and channels, even if these servers are not connected to traditional hardware or virtual servers because of their distributed existence\cite{discord}. Users can create Discord servers, control their rights to public access and visibility, and create one or more channels in this network. Within the database, users can create channels within the class structure based on access control and can customize channel visibility and access rights based on the server\cite{discord}. Most people are familiar with this platform so it's also a good option for our project.
+
+
+From all choices above, it's hard to choose one because they are all good choice for our project. Our goal is to successfully implement our project to the platform and the bot can successfully doing the command. In my point of view, I would choose the Microsoft teams because it is related to the Bot-kit so it's not hard to connect them together. Slack and Discord is also a good platform because most user are familiar with these two soft-wares. 
+
+
+\paragraph{User Interface Possible layout}
+Our user interface should have the following features and can successfully run the command and control the load balancer.
+The current implementation on user interface will be made by Node.js. The following list is an overview plan of our user interface.
+\begin{itemize}
+    \item Login: Has the ability to let user login and can manage the account. The features should include login, create account, password recovery, need help?
+   \item Statistics: A button that contains information about the balancer system, such as the usage the current status. 
+   \item Command Line: An input text box. This should be on the interface and let user enter the command and give the error messages if users didn't enter the correct command.
+    \item Settings: A button that has the ability to set all additional features. For example, user can use settings to restore the chat bot system if the interface is stuck or no response.
+    \item Exit: A button that can let you quit the program.
+
+\end{itemize}
+
+
+\paragraph{Conclusion}
+In this document, I gave some methods for each technical points and introduce the methods we would like to use about what and how to create a good user interface to our project. I have also discussed about the specific soft-wares that I probably going to use which could help me to implement our user interface design. First I talked about the options of bot framework and than I listed the unit testing methods that I might going to use. The last point is the platform that can put our project on. After discussed all the methods we might use, I have concluded the reason why I choose these methods based on the overview. I think it's a good idea to draw a design draft layout for our user interface design before implement it because this can help us know whether our designs have met all the requirements of our clients so we can do the next step. To be concluded, my opinion is that we could use the Botkit as the bot framework and use WebStorm to test Nodejs. On the other hand, I would say Microsoft Teams is a good platform to implement our goal. Probably this decision is not good enough, but it's a good try to design it. We would change the plan if we could find a better plan.

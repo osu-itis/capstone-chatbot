@@ -1,130 +1,51 @@
-\documentclass[onecolumn, draftclsnofoot,10pt, compsoc]{IEEEtran}
-\usepackage{graphicx}
-\usepackage{url}
-\usepackage{setspace}
-\usepackage{caption}
+\subsection{Abstract}
+This document outlines the entire design of the software project known as Nitro Chatbot, which is the proposed solution to the project proposal "ChatBot for Load Balancer Infrastructure".
+This document serves as an informative document for the development team to communicate a detailed blueprint of the proposed design to the stakeholders.
+Nitro Chatbot is comprised of 3 main components (Chatbot, Relay, Deployment) that work in unison to provide a solution.
+The chatbot (deployed to AWS) will connect to Microsoft Teams, accept command input, authenticate users, forward requests to the relay, receive replies and display them to the user.
+The relay will await requests from the chatbot, forward them to the load balancer, and return the response to the chatbot.
+Finally, the deployment module describes the continuous integration/continuous deployment (CI/CD) pipeline used to rapid and reliable development.
 
-\usepackage{geometry}
-\geometry{textheight=9.5in, textwidth=7in}
-
-
-% 1. Fill in these details
-\def \CapstoneTeamName{		    Nitro Chatbot}
-\def \CapstoneTeamNumber{		63}
-\def \GroupMemberOne{			Jack Barnes}
-\def \GroupMemberTwo{			Sarun Pitaksuteephong}
-\def \GroupMemberThree{			Cheng Xie}
-\def \CapstoneProjectName{		ChatBot for Load Balancer Infrastructure}
-\def \CapstoneSponsorCompany{	OSU Information Services}
-\def \CapstoneSponsorPerson{	Stacy Brock}
-
-% 2. Uncomment the appropriate line below so that the document type works
-\def \DocType{	%Problem Statement
-				%Requirements Document
-				%Technology Review
-				Design Document
-				%Progress Report
-				}
-
-\newcommand{\NameSigPair}[1]{\par
-\makebox[2.75in][r]{#1} \hfil 	\makebox[3.25in]{\makebox[2.25in]{\hrulefill} \hfill		\makebox[.75in]{\hrulefill}}
-\par\vspace{-12pt} \textit{\tiny\noindent
-\makebox[2.75in]{} \hfil		\makebox[3.25in]{\makebox[2.25in][r]{Signature} \hfill	\makebox[.75in][r]{Date}}}}
-% 3. If the document is not to be signed, uncomment the RENEWcommand below
-\renewcommand{\NameSigPair}[1]{#1}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{document}
-\begin{titlepage}
-    \pagenumbering{gobble}
-    \begin{singlespace}
-    	% 4. If you have a logo, use this includegraphics command to put it on the coversheet.
-    	%\includegraphics[height=4cm]{logo-small-notext.png}
-        \hfill 
-        \par\vspace{.2in}
-        \centering
-        \scshape{
-            \huge CS Capstone \DocType \par
-            {\large\today}\par
-            \vspace{.5in}
-            \textbf{\Huge\CapstoneProjectName}\par
-            \vfill
-            %\includegraphics[height=8cm]{logo-small-notext.png}
-            \vfill
-            {\large Prepared for}\par
-            \Huge \CapstoneSponsorCompany\par
-            \vspace{5pt}
-            {\Large\NameSigPair{\CapstoneSponsorPerson}\par}
-            {\large Prepared by }\par
-            Group\CapstoneTeamNumber\par
-            % 5. comment out the line below this one if you do not wish to name your team
-            \CapstoneTeamName\par 
-            \vspace{5pt}
-            {\Large
-                \NameSigPair{\GroupMemberOne}\par
-                \NameSigPair{\GroupMemberTwo}\par
-                \NameSigPair{\GroupMemberThree}\par
-            }
-            \vspace{20pt}
-        }
-        \begin{abstract}
-        % 6. Fill in your abstract
-            This document outlines the entire design of the software project known as Nitro Chatbot, which is the proposed solution to the project proposal "ChatBot for Load Balancer Infrastructure".
-            This document serves as an informative document for the development team to communicate a detailed blueprint of the proposed design to the stakeholders.
-            Nitro Chatbot is comprised of 3 main components (Chatbot, Relay, Deployment) that work in unison to provide a solution.
-            The chatbot (deployed to AWS) will connect to Microsoft Teams, accept command input, authenticate users, forward requests to the relay, receive replies and display them to the user.
-            The relay will await requests from the chatbot, forward them to the load balancer, and return the response to the chatbot.
-            Finally, the deployment module describes the continuous integration/continuous deployment (CI/CD) pipeline used to rapid and reliable development.
-        \end{abstract}     
-    \end{singlespace}
-\end{titlepage}
-\newpage
-\pagenumbering{arabic}
-\tableofcontents
-% 7. uncomment this (if applicable). Consider adding a page break.
-\listoffigures
-\listoftables
-\clearpage
-\textbf{Change History}\par
-
-\begin{tabular}{ p{1in} p{1in} p{4in} }
+\subsection {Change History}
+\begin{longtable}{ | p{1in} p{1in} p{4in} | }
+ \caption{Design Document Change History}
+ \\\hline
  \textbf{Revision} & \textbf{Date} & \textbf{Changes} \\
  \hline
  1.0 & 11/25/2019 
- & - \\
+   & - First Draft\\
  \hline
  1.1 & 12/03/2019 
- & Both figures have been updated to the latest versions. Language has be clarified that users must use direct messages to send commands to the chatbot. User commands have been consolidated into a table. Deployment have been changed to an EC2 instance to meet the availability requirement. Administrative specifications clarified. \\
+   & - Both figures have been updated to the latest versions.\\
+ & & - Language has be clarified that users must use direct messages to send commands to the chatbot.\\
+ & & - User commands have been consolidated into a table.\\
+ & & - Deployment have been changed to an EC2 instance to meet the availability requirement.\\
+ & & - Administrative specifications clarified. \\
  \hline
  2.0 & 05/25/2020 
- &  \begin{itemize}
-        \item 1.4 Removed definition for Duo
-        \item Figure 1 Updated project overview image.
-        \item 2.1 Moved authentication to the backend (Relay). Removed reference to CDK, as the final solution was exclusively built as a CloudFormation template.
-        \item 2.2 Changed "mentioned" to "messaged".
-        \item 3.1.1 Removed authentication from the frontend. Added reference to HTTPS. Updated command table. Added mention of TOTP key.
-        \item 3.1.2 Removed mention of IDP, added mention of HTTPS.
-        \item 3.2.1 Added verification of user's identity. Updated command table. Mentioned the use of HTTPS.
-        \item 3.2.2 Added interaction with AWS SecretsManager for retrieving credentials NetScaler.
-        \item 3.2.3 Removed connection renegotiation, added use of HTTPS.
-        \item 3.3.1 Removed reference to CDK, and added mention of CloudFormation template. Testing focus modified to state primary focus on input validation. Added information about Jenkins instance on AWS.
-        \item 3.3.2 Remove interactions with chatbot and relay. Added interactions with GitHub for CI, and with AWS for deploying.
-        \item 4.1 Added updated Gantt chart reflecting the actual development timeline. 
-
-    \end{itemize} \\
+   & - 1.4 Removed definition for Duo\\
+ & & - Figure 1 Updated project overview image.\\
+ & & - 2.1 Moved authentication to the backend (Relay). Removed reference to CDK, as the final solution was exclusively built as a CloudFormation template.\\
+ & & - 2.2 Changed "mentioned" to "messaged".\\
+ & & - 3.1.1 Removed authentication from the frontend. Added reference to HTTPS. Updated command table. Added mention of TOTP key.\\
+ & & - 3.1.2 Removed mention of IDP, added mention of HTTPS.\\
+ & & - 3.2.1 Added verification of user's identity. Updated command table. Mentioned the use of HTTPS.\\
+ & & - 3.2.2 Added interaction with AWS SecretsManager for retrieving credentials NetScaler.\\
+ & & - 3.2.3 Removed connection renegotiation, added use of HTTPS.\\
+ & & - 3.3.1 Removed reference to CDK, and added mention of CloudFormation template. Testing focus modified to state primary focus on input validation. Added information about Jenkins instance on AWS.\\
+ & & - 3.3.2 Remove interactions with chatbot and relay. Added interactions with GitHub for CI, and with AWS for deploying.\\
+ & & - 4.1 Added updated Gantt chart reflecting the actual development timeline. \\
  \hline
-\end{tabular}
-
-\clearpage
+\end{longtable}
 
 % 8. now you write!
-\section{Introduction}
+\subsection{Introduction}
 
-\subsection{Purpose}
+\subsubsection{Purpose}
 Nitro Chatbot will provide a chatbot interface for users to query the status of their load balanced resources within the Oregon State University network.
 Users with the correct permissions will be able to quickly access the status and perform common configuration tasks on the University's load balancer, a Citrix NetScaler.
 
-\subsection{Scope}
+\subsubsection{Scope}
 Two primary software components will need to be developed.
 The first component is the chatbot that will accept commands from a user.
 The first component is known as the chatbot, but may also be referenced as the front-end or the user interface (UI), as it provides both of these functions for the software system.
@@ -133,12 +54,12 @@ The relay is also known as the back-end as it performs actions out of view of th
 The relay will maintain authentication for active users and perform the direct interaction with the load balancer API (Application Program Interface).
 This will allow the chatbot to provide quick access to the status and configuration options for the server pools that the user's manage.
 
-\subsection{Intended Audience}
+\subsubsection{Intended Audience}
 Users of this chatbot will be system administrators who manage server pools at Oregon State University. They have ONID (OSU Network ID) accounts.
 They have a high-level of technical understanding and are familiar with command line interfaces.
 The targeted user base is approximately 2 dozen people.
 
-\subsection{Definitions}
+\subsubsection{Definitions}
 \underline{Botkit Framework}: An open-source developer tool for building chatbot that also allows custom integration for major messaging platforms. Has direct access to platform APIs. It is owned by Microsoft \cite{framework}.
 \\\underline{Chatbot}: A chatbot is a piece of software that conducts a conversation via auditory or textual methods \cite{chatbot}.
 \\\underline{Citrix NetScaler}: A an application delivery controller made by Citrix that load balances to make sure that applications can be run as smooth as possible \cite{netscaler}.
@@ -148,15 +69,15 @@ The targeted user base is approximately 2 dozen people.
 \\\underline{REST}: Representational State Transfer. It is a software architect style that defines what could be used for creating web services. The main constraint are the client that uses the API and the resources that the API can provide information to \cite{restphd} \cite{rest}.  
 \\\underline{Server Pool}: An autonomous region that contains physical servers. It is a simplified unified view where virtual machines are located \cite{pools}.
 
-\section{System Overview}
+\subsection{System Overview}
 \begin{figure}[h]
     \centering
     \captionsetup{format=hang,justification=raggedright,margin=2cm}
     \includegraphics[height=9cm]{overview-v3.png}
     \caption[Basic overview of the chatbot]{Basic overview of the chatbot, and how it will allow users access to load balancer configurations.}
-    \label{fig:NetScaler Chatbot}
+    \label{fig:Nitro Chatbot}
 \end{figure}
-\subsection{System Design}
+\subsubsection{System Design}
 Nitro Chatbot is comprised of 3 main components (chatbot, relay, deployment) that work in unison.
 
 The first component, chatbot, is a piece of software written in Node.js.
@@ -172,7 +93,7 @@ The third component, deployment, describes the Continuous Integration / Continuo
 Jenkins will be used to run test suites that will be developed for both the chatbot and the relay.
 Amazon Web Services CloudFormation will be used to deploy the software into production.
 
-\subsection{Design Stakeholders and their Concerns}
+\subsubsection{Design Stakeholders and their Concerns}
 Since Nitro Chatbot is designed to eventually integrate into existing infrastructure, stakeholder requirements are paramount to the successful development of this software system.
 The chatbot component should be written using the Botkit framework, and it must be deployed to Amazon Web Services (AWS). 
 It will receive commands from the user when messaged directly, not listening to messages at any other time.
@@ -181,9 +102,9 @@ The load balancer is a Citrix NetScaler running 12.0 software and will be commun
 The load balancer will be configured with partitions, so that each user can only configure their owned resources.
 The chatbot must not directly communicate requests to Load Balancer, as this causes a security issue.
 
-\section{Component Design}
-\subsection{Chatbot}
-\subsubsection{Composition}
+\subsection{Component Design}
+\subsubsection{Chatbot}
+\paragraph{Composition}
 The first component of the Nitro Chatbot is a chatbot, which functions as the frontend (or user interface) for the software system.
 The chatbot will be implemented in Node.js, utilizing available packages (libraries) to meet the requirements of the component.
 At it’s core, the chatbot accepts commands from the user, input as messages directed at the chatbot.
@@ -204,10 +125,9 @@ Once authenticated, the chatbot will package the request as a JSON file and send
 When the relay responds, the chatbot will format a response for the user and send it to them.
 The chatbot will log all user interactions in Amazon Web Service (AWS) CloudWatch, removing sensitive information prior to storage.
 
-\linebreak
-\begin{table}[h]
-    \caption{Available user commands}
-    \begin{tabular}{ p{1.85in} p{2.7in} p{2.0in}  }
+\begin{longtable}[h]{ | p{1.85in} | p{2.7in} | p{1.95in} |  }
+     \caption{Available User Commands}
+     \\\hline
      \textbf{Command} & \textbf{Description} & \textbf{Response} \\
      \hline
      list
@@ -246,10 +166,7 @@ The chatbot will log all user interactions in Amazon Web Service (AWS) CloudWatc
      & Sends a request to the admin for access (message is optional)
      & Confirmation that the log was sent \\
      \hline
-    \end{tabular}
-    \label{tab:commands}
-\end{table}
-\linebreak
+\end{longtable}
 
 If the user gives an invalid command, the chatbot will tell the user to try again.
 If the user gives a valid command, then the chatbot will send the request to the relay.
@@ -262,7 +179,7 @@ When a response is received from the relay, the chatbot will log the interaction
 
 Finally, the chatbot will utilize Jasmine for unit tests. This will allow Jenkins continuous integration (CI) to run the tests in an automated fashion.
 
-\subsubsection{Interactions}
+\paragraph{Interactions}
 The chatbot has many interactions that it must manage: users (via Microsoft Teams), the relay, and CloudWatch.
 
 The chatbot acts as the user interface (UI) for Nitro Chatbot.
@@ -274,7 +191,7 @@ The chatbot also interacts with the relay, through a Transport Layer Security (T
 Finally, the chatbot must also log all user interactions.
 The chatbot will utilize Amazon's CloudWatch to store logs that can be accessed at a later time.
 
-\subsubsection{Metrics and Additional Criteria}
+\paragraph{Metrics and Additional Criteria}
 The chatbot is responsible for establishing the TLS connection to the relay.
 
 The chatbot must be able to receive multiple commands from multiple users simultaneously, and not lose/mishandle any requests.
@@ -289,8 +206,8 @@ All information sent to the relay must be encrypted, as it contains critical cre
 The chatbot is responsible for maintaining logs that can be reviewed by an administrator.
 CloudWatchLogs includes an administrative panel that will allow for auditing by an administrator of the system.
 
-\subsection{Relay}
-\subsubsection{Composition}
+\subsubsection{Relay}
+\paragraph{Composition}
 The second component of the Nitro Chatbot is a relay, which functions as the backend for the software system.
 The relay will be implemented in Node.js, utilizing available packages (libraries) to meet the requirements of the component.
 At it's core, the relay accepts requests from the chatbot (frontend), verifies the identity of the user, formats and forwards them to the load balancer (a Citrix NetScaler 12.0).
@@ -311,10 +228,9 @@ This allows the relay to incorporate the the security principle of least privile
 
 The following are the commands that will be available to the user, which in turn the relay must be able to communicate to the load balancer:
 
-\linebreak
-\begin{table}[h]
-    \caption{Available user commands}
-    \begin{tabular}{ p{1.85in} p{2.7in} p{2.0in}  }
+\begin{longtable}[h]{ | p{1.85in} | p{2.7in} | p{1.95in} |  }
+     \caption{Available User Commands}
+     \\\hline
      \textbf{Command} & \textbf{Description} & \textbf{Response} \\
      \hline
      list
@@ -353,14 +269,11 @@ The following are the commands that will be available to the user, which in turn
      & Sends a request to the admin for access (message is optional)
      & Confirmation that the log was sent \\
      \hline
-    \end{tabular}
-    \label{tab:commands}
-\end{table}
-\linebreak
+\end{longtable}
 
 If a user asks to perform a task without proper having permissions, then the bot will respond to the user that they do not have permission to perform the requested task.
 
-\subsubsection{Interactions}
+\paragraph{Interactions}
 This component has 3 direct interactions.
 The first interaction is with the chatbot component.
 The relay has a secure TLS connection with the chatbot, which runs as a webserver behind HTTPS.
@@ -376,7 +289,7 @@ This relay communicates with the load balancer using it's REST API, NITRO API.
 The relay uses information that it receives from requests , formats it for the load balancer, and sends it.
 The load balancer will then send a response, which the relay formats to reply to the chatbot, and replies to the original request.
 
-\subsubsection{Metrics and Additional Criteria}
+\paragraph{Metrics and Additional Criteria}
 The chatbot will perform the initial connection attempt via HTTPS, and the relay must be in a state to accept a new connection if one is not active.
 The relay will be essentially stateless, not requiring persistent storage in order to meet requirements.
 The relay should be secure, not leaking information about the state of the load balancer or user credentials.
@@ -385,8 +298,8 @@ It should deny connections from any origin that is not the chatbot/frontend.
 The relay will be able to accept requests asynchronously, meaning it doesn't block additional requests if one is still processing.
 The relay will always return a response to every request, even if it doesn't receive a response from the load balancer in a timely fashion.
 
-\subsection{Deployment}
-\subsubsection{Composition}
+\subsubsection{Deployment}
+\paragraph{Composition}
 The deployment of the chatbot is separated into two separate parts: the main infrastructure and automated testing/integration. 
 
 For the chatbot infrastructure, it will be deployed to Amazon Web Services (AWS) through a provisioning of resources.
@@ -403,30 +316,14 @@ Each component will have tests written to test as much of the software's functio
 Testing priorities primarily include input validation.
 Other testing methods (such as end-to-end) are likely to not be included due to difficulty of implementation and low usefulness.
 
-\subsubsection{Interactions}
+\paragraph{Interactions}
 The deployment component interacts with GitHub, receiving web-hooks when a change is made to the repository.
 To perform the continuous integration, the Jenkins instance will be used to run Jasmine tests within the relay and the chatbot.
 The results of these tests will be pushed back to GitHub, marking each commit and either tests passing or tests failing.
 
 The CloudFormation template will be used with AWS to set up all the required resources for the chatbot and relay to run in production.
 
-\subsubsection{Metrics and Additional Criteria}
+\paragraph{Metrics and Additional Criteria}
 A proper implementation of the deployment component is critical for a successful solution.
 A continuous integration / continuous deployment (CI/CD) pipeline allows for rapid development and rapid deployment.
 Any implementation should strive for minimal interaction with the developer, instead fully utilizing automation.
-
-\clearpage
-\section{Appendices}
-\subsection{Feature implementation timeline}
-\begin{figure}[h]
-    \centering
-    \captionsetup{format=hang,justification=raggedright,margin=2cm}
-    \includegraphics[height=15cm]{gantt-v2.png}
-    \caption[Feature implementation timeline]{This is the actual development timeline for Nitro Chatbot.}
-    \label{fig:Feature implementation Timeline}
-\end{figure}
-
-\clearpage
-\bibliographystyle{IEEEtran}
-\bibliography{dd}
-\end{document}

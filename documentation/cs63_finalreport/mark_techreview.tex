@@ -1,0 +1,126 @@
+\subsubsection{Abstract}
+This document is an Technology Review which will describe and recommend each types and available options for the project, a Netscaler Chatbot.
+The first section will describe the development platform that will be used to build the project.
+The second section will discuss the deployment tools that can be used to help support the project.
+The final section will discuss what testing framework options we could use to create automated tests for the project.
+The automated testing itself will be done on Jenkins continuous integration platform as requested by the client.
+The information within this document serve as a guiding tool for the client to choose what they wanted in their software based on options that are available.
+
+\subsubsection{Introduction}
+This Technology Review will discuss the components of the deployment section of the proposed software: Nitro ChatBot.
+In this document, each component and their available options will be discussed and weighted accordingly to the needs of the project.
+At the document's conclusion, each options will be summarized, compared and weighted again to see which would be best for the project.
+After that, a final recommendation for each technology component will be made.
+
+\paragraph{Project Information}
+The project given, NetScaler Nitro ChatBot, has two key main software that are used together to fulfill the needs requested.
+The first software is the chatBot, which is hosted on a cloud service and serves as the interface for the user to interact with.
+The chatbot allows the user to use specific commands to create requests that can be processed and be sent to the second software.
+That second software is known as the relay, which interacts with the Oregon State University firewall based on the external requests given from the chatbot.
+The relay processes all requests made against the Citrix Netscaler.
+The chatBot acts as the front-end, and the relay operates as the back-end.
+
+\paragraph{Components Reviewed}
+Three components and their available options will be reviewed.
+The first component will be the development and deployment platform that will be used to create and launch the chatbot. 
+The options for these include Containers and Serverless.
+The second component is the development tools that will be used to help support the platform and the chatbot.
+The options are Cloudformation, Terraform, and Amazon EC2.
+The final component is the testing framework that will be used for automated testing in the project.
+The options for this include Mocha, Jasmine, and Tape.
+Another key component that is needed is a continuous integration (CI) platform but this will not be discussed as the client has requested the project's CI to be done on Jenkins. 
+
+\subsubsection{Development Platform}
+\paragraph{Container}
+Container is a deployment method that packages the application data into different parts so that it can be assembled seamlessly later. 
+It is a host-based type of deployment. 
+Some advantages of a container are its high scalability, portability, and flexibility.  
+It has good compatability with many APIs like NitroAPI, making it highly accessible.
+Amazon Web Services (AWS), the cloud platform that we will be using, also has a huge array of support and documentation for the container platform, especially Docker.
+One apparent disadvantage it has is if the data within the container was corrupted there is no way of recovering it unless the user has backed it up beforehand.
+
+If this deployment type is chosen, the container service used will be Docker as it is the most common container platform, maximizing compatibility likelihood. 
+Choosing this deployment type will make the project easier to move around due to container's high flexibility. 
+Although since the chatbot is mainly used by the system administrators of OSU Information Services, the portability of containers might not be necessary.
+
+\paragraph{Serverless}
+Serverless is another deployment method that is run using a cloud service and can be executed on-demand which makes it much faster than containers. 
+Simple modifications are easier to fix on Serverless. 
+It also supports event triggers, which helps with pipelining and sequenced workflows. 
+It is also more difficult to troubleshoot as the project gets bigger, which meant it doesn't scale well. 
+It is a "black box" technology, so it is more difficult to know what happens in the cloud.
+
+For this project, if this deployment type is chosen, the cloud service used will be AWS Lambda as it has the best compatibility with AWS. 
+This type of deployment is a good option for the chatbot as it is mainly used by a single group of users.
+It would face some issues should it need to be ported elsewhere, however.
+
+\subsubsection{Deployment Tools}
+\paragraph{Cloudformation}
+One option for the code infrastructure is Amazon Cloudformation. 
+Cloudformation is highly compatible with AWS as it is made for it.
+Cloudformation it is not open-source however so there is some limitations when it comes to flexibility.
+But that would also mean the developers have more time to work in other areas which resulted in Cloudformation having a great UI for debugging and general overview. 
+It also has cross-stack referencing which makes it easy to break up the infrastructure. However not being open-source also makes it difficult to run certain features without creating a custom function or script.
+
+By extension, Cloudformation should be used with AWS Cloud Development Kit (CDK) which is a software development framework. 
+CDK, like Cloudformation, is created to be specifically used with AWS. 
+Using these two in conjunction will make deployment through AWS very smooth to manage.
+
+\paragraph{Terraform}
+Terraform is another option for code infrastructure. 
+Unlike Cloudformation, Terraform is open-source which means it is much more flexible with what the developer can do than Cloudformation. 
+Terraform uses modules which are similar to Cloudformation's cross-stack referencing. 
+It allows the developer to break up the infrastructure for easier deployment. The difference is that Terraform completely splits its states while Cloudformation uses nested states. 
+The disadvantage of Terraform confusing syntax and difficulty of debugging.
+For its software development framework, the open-source nature of Terraform gives it many options and supports many languages, including Node.js.
+    
+\paragraph{Elastic Compute Cloud (EC2)}
+Amazon Elastic Compute Cloud (EC2) is web-based tool that allows developers to set up virtual machines to be able to test the capacity of their projects in a safe environment. 
+Like Cloudformation, it is run on the AWS. 
+It is fast reliable, and flexible as any instances that is run on it will scale automatically to AWS.
+However, each instance's data will delete themselves after the instance ended; backing up said data is recommended. 
+It has high compatibility with all coding infrastructures, but especially with Cloudformation as both are developed to be used on AWS.
+
+\subsubsection{Testing  Framework}
+\paragraph{Mocha}
+Mocha is an automated testing tool made for Node.js, which is the language that will be used to create the chatbot. 
+It is very flexible and allows the tester to create many types of tests.
+It checks the tests in a fail/pass state and informs the tester if the test takes too long to run. 
+This is very useful information due to Node's asynchronous behavior. 
+This makes it perfect for testing any code written using Node.js. 
+This testing tool is very flexible, but its huge array of tools the user will need to learn a lot about it to use it to its fullest potential.
+\paragraph{Jasmine}
+One of the original and the most popular testing framework for Javascript, which includes Node.js.
+Jasmine will provide all the tools the tester will need and is easy to use. 
+This also makes it compatible with many Javascript-based projects. 
+Due to its simplicity, it is easy to troubleshoot and create tests with.
+Jasmine does support custom tools if the developer wanted to add them, but it will not be as flexible as Mocha.
+\paragraph{Tape}
+One of the most minimalist automated testing tools available, Tape provides only the essentials required for any testing. 
+As it is very minimal, the tester will often have to include their own globals and any other tools they needed themselves. 
+This simplicity gives the developer more emphasis on the main project rather than having concerns on what testing tool to use. 
+Tape runs on a modular system, so it does not require setup nor teardown and is very fast.
+However, this same simplicity can also be a weakness as the tester will need to have a good prior experience with automated testing to branch out from using the essential tools given.
+
+\subsubsection{Conclusion}
+
+\paragraph{Development Platform}
+What we wanted for the development and deployment platform of our project are sustainability and compatibility.
+Given this information, a container platform would work best for this as AWS has more support for it than a serverless platform.
+Docker container will be chosen as it is the most robust and well-supported platform for usage in AWS.
+It also scales better as the project expands since the client did mention that they are planning to modify and add more features to the project after the project is transferred over to them.
+Another factor to why container is chosen is because its deployment is safer and easier to troubleshoot should a problem happen.
+\subparagraph{Recommendation}
+The platform I recommend for this project is Docker container.
+
+\paragraph{Deployment Tools}
+
+\subparagraph{Recommendation}
+I recommend to use Cloudformation as the code infrastructure.
+
+\paragraph{Testing Framework}
+The purpose of this software is simple: create an interface that the user can simply time commands in to interact with the netscaler relay.
+This meant there are only a limited amount test variety that will be needed to fulfill all the necessary tests.
+Given this, choosing Jasmine would work best for this project's automated tests as it is simple enough to learn while providing most of the necessary tools needed to create the desired tests with.
+\subparagraph{Recommendation}
+The testing framework I recommend is Jasmine.

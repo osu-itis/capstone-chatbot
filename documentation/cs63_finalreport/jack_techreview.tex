@@ -1,0 +1,156 @@
+\subsubsection{Abstract}
+This document is technology review of the three essential components, and their available options, that comprise the back-end portion of the NetScaler Chatbot project.
+The first component is a bi-directional connection and the messaging pattern it will use.
+The second component is the data storage solution the back-end will implement.
+The last component is the authentication scheme that will be used to bind users to accounts.
+At the conclusion of the document, options for each component will be weighed and a final determination is made.
+
+\subsubsection{Introduction}
+This Technology Review directly concerns components of the back-end of the proposed software: NetScaler ChatBot.
+Within this document, each component and available options are reviewed.
+At the end of the document, within the conclusion, each option is compared within a discussion section.
+After a comparison, a final determination about the selected technology/methodology for each option is made.
+
+\paragraph{Project Information}
+To ensure the essential operation of the proposed software, NetScaler ChatBot, initial document requirements call for 2 component softwares to be developed in unison.
+The first software is a ChatBot, which is hosted on a cloud service and serves at the interface for the user to interact with.
+The second software is known as the Relay.
+The Relay sits on the Oregon State University firewall, awaiting external requests from the ChatBot. 
+In this design pattern, the ChatBot itself operates as the front-end, and the Relay operates as the back-end.
+
+\paragraph{Software Operation Pattern}
+In the proposed design of the software, users interface directly with the ChatBot, sending requests in the form of commands.
+The command (if valid), along with information about the user, is packaged and sent to the relay.
+The relay processes the request against the Citrix NetScaler.
+The result is packaged, sent back to the ChatBot, and displayed to the user via a chat message.
+
+\paragraph{Components Reviewed}
+Three components and their available options will be reviewed.
+The first of these components is the messaging pattern that will be implemented for it's secured, bidirectional connection with the Chatbot.
+Available messaging patterns include Reverse Proxy, Message Queue, and Pub Sub.
+The second component is the data storage implementation that will be used to store state data.
+Available data storage implementations are persistent storage, in-memory data storage, and no external storage (in-application only).
+The final component to be reviewed is the authentication scheme that will be used to bind users with accounts.
+Potential authentication schemes include: Central Authentication Service (CAS) and Non-Federated.
+
+\subsubsection{Messaging Pattern}
+This component of the back-end governs the style of communication between the externally hosted ChatBot and it's purpose designed Relay.
+Between the ChatBot and the Relay will be a secure connection.
+Any valid command issued by the user to the ChatBot will generate a request that must then be sent to the Relay.
+The Relay will then have some amount of work to perform, it must then send a response back to the ChatBot.
+This chosen pattern should be reliable, be bi-directional in nature, and have a straight-forward implementation to reduce moving parts.
+
+\paragraph{Reverse Proxy}
+A reverse proxy is a type of server that retrieves resources from a server that is hidden from the client, appearing at the originator \cite{rproxy}.
+This differs from a standard proxy that relays and imitates the client when requesting resources from additional servers \cite{apacheproxy}.
+Due to the nature of proxies, the messaging pattern is naturally bi-directional.
+A reverse proxy traditionally operates with HTTP-like requests \cite{rproxy} with each received request receiving a response.
+Due to the bidirectional nature of a Reverse Proxy pattern, this is likely to be the easier implementation of the 3 options.
+One option for implementation of this messaging pattern would be to use a Node.js package like https-proxy-agent \cite{npmproxy}.
+
+\paragraph{Message Queue}
+At the most basic level, "A message queue is a queue of messages sent between applications. It includes a sequence of work objects that are waiting to be processed".
+Further, "A message is the data transported between the sender and the receiver application; it's essentially a byte array with some headers at the top" \cite{cloudamqp}.
+A message queue isn't traditionally bidirectional, instead operating asynchronously in a one-way direction, without an expected response \cite{cloudamqp}.
+By having a queue built asynchronously, messages are processed in the order they are received, and do not interfere with each other.
+An existing implementation of a message queue is RabbitMQ, which runs using the AMQP protocol \cite{cloudamqp}.
+
+\paragraph{Pub Sub}
+"Pub/sub is shorthand for publish/subscribe messaging, an asynchronous communication method in which messages are exchanged between applications without knowing the identity of the sender or recipient" \cite{pubsubstack}.
+This "loose coupling" means that publishers are never aware of the subscribers who receive their messages \cite{pubsubstack}.
+Scalability is a priority with the Pub Sub messaging pattern.
+Unlike previous options, Pub Sub can be a many-to-many relationship.
+As with message queues, a pub sub pattern is not traditionally bidirectional \cite{pubsubstack}.
+An existing implementation of a pub sub pattern is PubSubJS \cite{pubsubjs}.
+
+\subsubsection{Data Storage}
+Depending on the implementation of other features, a database may be needed to manage data in a more persistent manner.
+One example of a potential need for data persistence would be an authentication scheme/pattern that requires storing active tokens.
+Additionally, users may need to be matched to specific NetScaler accounts or partition IPs, a persistent database would allow this functionality in a reliable manner.
+
+\paragraph{SQLite}
+"SQLite is a software library that provides a relational database management system" \cite{whatissqlite}.
+SQLite is a full featured relational database system that operates out of a single file without an additional server process \cite{whatissqlite}.
+SQLite is open source, fully cross-platform, and the most widely deployed database in the world \cite{sqlite}.
+According to it's own website, "SQLite is very carefully tested prior to every release and has a reputation for being very reliable." \cite{sqlite}
+
+Another advantage of this option is it's persistent and also full ACID-compliant \cite{sqlite}.
+This "means all queries and changes are Atomic, Consistent, Isolated, and Durable" \cite{whatissqlite}.
+This means that a transaction will either complete fully, or not all.
+This prevents conditions that may corrupt the database file.
+This is a robust solution in a lightweight, in-application, package.
+
+\paragraph{Redis}
+Redis stands for Remote Dictionary Server \cite{redisfaq}.
+It is an in-memory external data structure meant to be fast, storing all data in key-value pairs \cite{redisfaq}.
+Even though it exists primarily in memory, it can be set up to persist data to a hard disk \cite{redisintro}.
+Redis runs as an external process, requiring programs that use it to connect to use a client interface.
+Like SQLite, Redis is also open source and supported by a large variety of languages \cite{rediswhatandwhy}.
+To use Redis, an instance of it must also be deployed separately.  
+
+\paragraph{Stateless}
+This option is a stateless methodology, without reliance on date persistence.
+The feasibility of a stateless design is still in question, but is worth exploring as it's the client's preference.
+This option would require engineering a methodology to either derive required information, or to create a configuration on the NetScaler that would allow this type of operation.
+
+Given the nature of the NetScaler's Nitro API documentation \cite{nitro}, the best method to explore the feasibility of this option would be to set up a NetScaler Virtual Machine (VM) to test commands against.
+However, this is not something the development team has access to currently.
+Within the coming weeks, a test environment will be available and the team can then determine the final design of this component
+
+While this option seems promising, and is worth following up on, it's not worth recommending this as the first option in the current phase.
+It would be best to remember this option, choose a different method for data storage, and decide later if it can be phased out later for stateless operation.
+
+
+\subsubsection{Authentication Scheme}
+\paragraph{Central Authentication Service}
+The first option for binding users to accounts within the NetScaler is to use Oregon State's University (OSU) Federated login.
+This system of Federated logins operates using Central Authentication Service (CAS) \cite{osucas}.
+Oregon State University provides a CAS that allows for users to authenticate to services using their ONID credentials.
+With configuration, the NetScaler can support logging in via OSU's CAS server \cite{nitro}.
+Using such a system, only pre-authorized users would be allowed access to NetScaler configurations.
+The downside with this is that users would be asked to authenticate when issuing commands.
+Additionally, the relay would need some sort of persistent data storage or require re-authentication with each issued command.
+
+\paragraph{Unique Identifier}
+The second option for an authentication scheme would be to gather available user information from the ChatBot software.
+This user information includes a unique identifier and the user's email \cite{teamscontext}.
+Using this unique user information, user's can be tied to specific NetScaler account credentials.
+
+This method requires persistent data storage to bind users to specific accounts.
+Additionally, this method has the potential to be less secure, as the application is being asked to maintain credentials to valuable network hardware.
+This also brings into question the ability to spoof identity by attempting to communicate with either software outside of a normal Teams environment.
+The pros of this implementation would be a streamlined user experience, not requiring re-authentication. 
+
+\subsubsection{Conclusion}
+
+\paragraph{Messaging Pattern}
+\subparagraph{Discussion}
+The main requirement for the message pattern is that it is bidirectional.
+Of the three reviewed options, only a reverse proxy is naturally bidirectional, with each request expecting a response.
+Another factor that plays into the decision is the amount of work that will be required with each request.
+From the requirements document, user requests will require a single request to be sent to the Citrix NetScaler (none of the specified commands are compound actions).
+Knowing this and the small target user base (~25 from the requirements document), we know that actions are unlikely to queue up.
+A message queue, or a pub sub structure is likely to be an overly robust solution when a simple one (that's better suited for request-response pairs) would suffice for the task.
+\subparagraph{Recommendation}
+I recommend a Reverse Proxy messaging pattern for this project.
+
+\paragraph{Data Storage}
+\subparagraph{Discussion}
+For the data storage component of the back-end, the primary requirement is for a lightweight deployment.
+Only two of the options meet this requirement: SQLite and Stateless.
+Currently it is difficult to recommend a Stateless design when many questions remain about the operation of Nitro API functions.
+While the team awaits availability of a test environment, the best recommendation is for SQLite, which is the client's second choice behind a stateless design.
+SQLite provide a robust database known for reliability without reliance on external applications that complicate deployment.
+
+\subparagraph{Recommendation}
+I recommend SQLite for persistent data storage.
+
+\paragraph{Authentication Scheme}
+\subparagraph{Discussion}
+The client's vision for this software is an implementation without additional logins.
+However security demands and concerns may override a simplified user experience.
+While both implementations are equally feasible, choosing to leverage OSU's existing CAS seems to be the best option from known information.
+Using the CAS provides an extra degree of security by abstracting direct management of critical credentials to sensitive and valuable hardware.
+
+\subparagraph{Recommendation}
+I recommend using the Central Authentication Service, as provided by Oregon State University.

@@ -1,0 +1,764 @@
+\documentclass[onecolumn, draftclsnofoot,10pt, compsoc]{IEEEtran}
+\usepackage{graphicx}
+\usepackage{url}
+\usepackage{setspace}
+\usepackage{caption}
+\usepackage{longtable}
+
+\usepackage{enumitem}
+\setlist[itemize]{noitemsep, topsep=0pt}
+
+\usepackage{titlesec}
+\titleformat{\paragraph}[hang]{\normalfont\fontfamily{phv}\fontsize{9}{14}\itshape}{\theparagraph}{1em}{}
+\titlespacing{\paragraph}{0pt}{1em}{0em}
+
+\titleformat{\subparagraph}[hang]{\normalfont\fontfamily{phv}\fontsize{8}{12}\bfseries}{\theparagraph}{1em}{}
+\titlespacing{\subparagraph}{10pt}{1em}{0em}
+
+\usepackage{geometry}
+\geometry{textheight=9.5in, textwidth=7in}
+
+% 1. Fill in these details
+\def \CapstoneTeamName{		    Nitro ChatBot}
+\def \CapstoneTeamNumber{		63}
+\def \GroupMemberOne{			Jack Barnes}
+\def \GroupMemberTwo{			Sarun Pitaksuteephong}
+\def \GroupMemberThree{			Cheng Xie}
+\def \CapstoneProjectName{		ChatBot for Load Balancer Infrastructure}
+\def \CapstoneSponsorCompany{	OSU Information Services}
+\def \CapstoneSponsorPerson{	Stacy Brock}
+
+% 2. Uncomment the appropriate line below so that the document type works
+\def \DocType{	%Problem Statement
+				%Requirements Document
+				%Technology Review
+				%Design Document
+				%Progress Report
+				Final Report
+				}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+\begin{titlepage}
+    \pagenumbering{gobble}
+    \begin{singlespace}
+        \hfill
+        \par\vspace{.2in}
+        \centering
+        \scshape{
+            \huge CS Capstone \DocType \par
+            {\large\today}\par
+            \vspace{.5in}
+            \textbf{\Huge\CapstoneProjectName}\par
+            \vfill
+            {\large Prepared for}\par
+            \Huge \CapstoneSponsorCompany\par
+            \vspace{5pt}
+            {\large Prepared by }\par
+            Group\CapstoneTeamNumber\par
+            \CapstoneTeamName\par 
+            \vspace{5pt}
+            {\Large
+                \GroupMemberOne\par
+                \GroupMemberTwo\par
+                \GroupMemberThree\par
+            }
+            \vspace{20pt}
+        }
+        \begin{abstract}
+            This document details the progress in design and development of CS63's Capstone project, Nitro Chatbot, for the school year ending June 2020.
+            Nitro Chatbot is a chatbot interface that allows users to quickly access the status us, and modify basic configurations for their load balanced resources on a Citrix NetScaler.
+            This report contains documentation developed by the team, the agreed-upon requirements of the project, and the state of the project as it hits version 1.0.
+        \end{abstract}     
+    \end{singlespace}
+\end{titlepage}
+\newpage
+\pagenumbering{arabic}
+\setcounter{tocdepth}{4}
+\tableofcontents
+\listoffigures
+\listoftables
+\clearpage
+
+
+\section{Foreword}
+\subsection{Release Notes 1.0}
+
+This Final Report details the design and development Nitro Chatbot up to it's version 1.0.
+Nitro Chatbot was developed from the proposed project idea "Chatbot for Load Balancer Infrastructure".
+In it's current state, the project is fully functional, with it's stack able to fully launch in AWS from template.
+Further development on Nitro Chatbot would likely be aimed towards adding new commands for a user to use.
+These commands could include adding and removing resources, adding or removing bindings, and updating offloaded certificates.
+Another change could be to modify the fields returned by status commands.
+Details about potential further work to do on this project are contained in Appendix 2
+All in all, we are satisfied with our progress on this project and hope that you are too.
+
+\section{Introduction}
+Nitro Chatbot began as the project proposal "ChatBot for Load Balancer Infrastructure", original proposed by Stacy Brock working at Oregon State University (OSU) in Information Services.
+
+At OSU, load balancing is provided as a service to departments across campus.
+Load balancing is the process of distributing network traffic across multiple servers, allowing for scaleable pools of redundant servers.
+This process improves server responsiveness, and availability.
+Users who manage these load balanced resources need to be able to view the status of, or modify configurations for them.
+This may be in times of maintenance, or if a problem is detected elsewhere.
+The problem is that these common tasks are cumbersome to access and execute, or may require attention from other employees to complete.
+
+Nitro Chatbot aims to alleviate these issues by providing a mechanism to quickly access these common tasks from anywhere.
+Nitro Chatbot provides an easy to use interface through Microsoft Teams that leverages built-in authentication to allow users to perform these common tasks.
+
+Our team is composed of 3 members:
+\begin{enumerate}
+    \item Cheng Xie, who is responsible for the Chatbot component.
+    \item Jack Barnes, who is responsible for the Relay component.
+    \item Sarun Pitaksuteephong, who is responsible for the Deployment component.
+\end{enumerate}
+
+Our client, Stacy Brock, as a software engineer herself, provided a huge amount of support through the design phase and beyond.
+Her expertise, knowledge of technologies, and methods were instrumental in assisting this project to fruition.
+
+For anyone who wishes to continue to develop this project, I will refer you to Appendix 4, which contains any remaining work that may need to be done on this project.
+
+\section{Requirements Document}
+\input{cs63_requirementsdocument}
+
+\section{Design Document}
+\input{cs63_designdocument}
+
+\section{Tech Reviews}
+\subsection{Backend - Jack Barnes}
+\input{jack_techreview}
+
+\subsection{Frontend - Cheng Xie}
+\input{cheng_techreview}
+
+\subsection{Deployment - Sarun Pitaksuteephong}
+\input{mark_techreview}
+
+\section{Weekly Blog Posts}
+\subsection{Jack Barnes}
+\input{jack_blogs}
+
+\subsection{Cheng Xie}
+\input{cheng_blogs}
+
+\subsection{Sarun Pitaksuteephong}
+\input{mark_blogs}
+
+\clearpage
+\section{Final Showcase Image}
+    \begin{figure}[ht]
+        \centering
+        \includegraphics[height=20cm]{showcase.png}
+        \label{fig:Final Showcase Image}
+    \end{figure}
+
+\section{Project Documentation}
+\subsection{Overview}
+This project is a chatbot for Microsoft Teams that allows authorized users to quickly query a NetScaler load balancer to view the status and enable/disable various resources.
+Contained within are 2 Node.js projects that are meant to be deployed separately and interact with each other. Additionally there are 2 more folders, one for documentation and one for file pertaining to deployment.
+
+\subsection{Repository Contents}
+\subsubsection{Chatbot}
+The first project is the chatbot (contained within /chatbot).
+The chatbot uses BotKit to interact with Microsoft's Bot Framework.
+For the chatbot to operate, it must be deployed and accessed with an https address (For deployment, we use a purchased domain: nitrochatbot.com).
+Additionally, the chatbot must be registered as a Microsoft application to obtain a valid ID and Secret Key to be accessible through Microsoft Teams.
+Finally, accessing the application requires an application manifest file (within the /deployment folder).
+
+\subsubsection{Relay}
+The second project is the relay (contained within /relay).
+The relay acts as a web server (running with Express), accepting messages only from the chatbot.
+Messages it receives are parsed and formulated into requests to the NetScaler (via it's REST API, NITRO).
+The relay then passes responses to the chatbot so it can reply to the user.
+
+\subsubsection{Deployment}
+This folder contains relevant files pertaining to deployment of this project.
+Additionally, this folder will contain the application manifest file that can be used to install NitroChatbot as an application within Microsoft Teams.
+
+\subsection{Deploying the Project}
+To deploy this project within AWS, a Cloudformation template deployment/NitroChatbot.json accurately describes all the resources needed to deploy both instances to AWS.
+
+\subsubsection{Prerequisites}
+\begin{enumerate}
+    \item Existing Key-Pair within AWS to assign to both instances (the template will prompt for this)
+    \item The bot needs to be registered with Microsoft's Bot Framework here
+    \item You'll need both the App ID and an access key (which needs to be generated separately) when creating the stack from the template.
+    \item URL for the Relay (this is given to the chatbot instance so that is can communicate with the relay using https).
+    \item Full ARN for a pre-generated SSL certificate. This is used by both application load balancers.
+    \item A TOTP Key. This is Base32 (A-Z,2-7) and must be 32 characters long. You can run the file totpgenks.js with node to generate a valid key.
+\end{enumerate}
+
+\subsubsection{Creating the Stack}
+Use Cloudformation with the NitroChatbot.json for the template. Enter all the information gathered during the prerequites into the parameters. On average it took about 5-7 minutes to finish creating the stack.
+
+Once the stack is created you'll be able to see both public DNS addresses within the Outputs. After the instances have finished initializing, you'll be able to verify their operation by visiting those addresses (make sure you prefix them with https://).
+
+Note: You'll have to click through a certificate warning, since your browser will be recieving a certificate that doesn't match the address you browsed to.
+
+The chatbot instance will give you a plain page that states which version of Botkit it's running. And the Relay instance will give you an error about missing fields in your request. This is a good sign.
+
+The next step is to use the outputs you were given as ALIAS A Records for your hosted zone in Route 53.
+
+Finally, from Microsoft Teams, install the application using the NitroChatbot.zip file.
+
+Note: the manifest file contained within will need to be updated to match the URL of the Chatbot and it's application id.
+
+\subsubsection{Adding Users}
+To add an allowed user for Nitro Chatbot you'll need to create a new secret in SecretsManager.
+
+The secret name needs to match their unique ID (users who use the command "request-auth" with the chatbot will have this value logged in the "RequestedAuths" log stream). The contents of the secret must be:
+\begin{table}
+    \caption{SecretsManager Entry}
+    \centering
+\begin{tabular}{| p{2.5cm} | p{5.0cm} |}
+    \hline \textbf{Secret Key} & \textbf{Secret Value} \\
+    \hline
+    url & https://nitrourl.com/
+    \\ \hline
+    username & $<$their\_username$>$
+    \\ \hline
+    password & $<$their\_password$>$
+    \\ \hline
+\end{tabular}
+\end{table}
+
+\subsubsection{Final Notes}
+I attempted to create a Macro to generate a TotpKey on stack creation, but could not get it to work (wasn't able to reference it from another template).
+However, I did include the work I did in the file NitroChatbotGenKey.json.
+This should be fixable with a little work.
+
+One alternative to including a macro, would be to have the Lambda function run separately and store the key for the instances to read separately. This could be used to periodically re-roll the key for additional security. Unfortunately, we weren't able to implement this within our limited timeframe.
+
+\subsection{Local Deployment}
+Deploying this project so that it runs locally takes a large amount of system configuration to get setup correctly.
+
+\subsubsection{Prerequisites}
+These instruction are intended for use on Linux.
+This project is untested on Windows, but could easily be adapted to that environment.
+Additional, these instructions require the use of an AWS account.
+Some of these procedures may result in charges.
+
+The following software needs to be installed locally to run the project: Nodejs v14 and Bot Framework Emulator.
+
+Clone the repository to a local folder.
+Within the repository, add the following files: chatbot/.env chatbot/.app\_creds andrelay/.env
+
+On the system add: ~/.aws/credentials
+
+\paragraph{chatbot/.env}
+2 lines are required in this file:
+\begin{verbatim}
+    RELAY_URL=
+    TOTP_KEY=
+\end{verbatim}
+
+RELAY\_URL must be equal to the address for the relay when it's running.
+In the case of running locally, this will be equal to http://127.0.0.1:3001 TOTP\_KEY must be a base32 key, probably of length 16 (other lengths will work however).
+Base32 is uppercase letters A-Z and digits 2-7. This value must be matched within /relay/.env
+
+\paragraph{chatbot/.app\_creds}
+In .app\_creds there must be 2 lines, the first line is the Microsoft App ID, and the second line is the Microsoft App Password.
+In the case of running locally, these lines may be empty, but they must be there (the bot does not need to authenticate with Microsoft correctly to run locally).
+
+\paragraph{relay/.env}
+This file needs 2 lines:
+\begin{verbatim}
+    PORT=
+    TOTP_KEY=
+\end{verbatim}
+
+TOTP\_KEY must be set to the same value as it set in /chatbot/.env (base32) PORT is optional (defaulting to 3001 when not present), but I recommend still including this line so that we are explicit.
+
+\paragraph{~/.aws/credentials}
+Create this folder if it's not present and within the file create this structure, filling it in with the details for an AWS user:
+\begin{verbatim}
+    [default]
+    aws_access_key_id = 
+    aws_secret_access_key =
+\end{verbatim}
+
+The AWS user above must have a policy with these fields attached:
+\begin{verbatim}
+    {
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "secretsmanager:GetResourcePolicy",
+                "secretsmanager:GetSecretValue",
+                "secretsmanager:DescribeSecret",
+                "secretsmanager:ListSecretVersionIds"
+            ],
+            "Resource": [
+                "*"
+            ]
+        },
+	      {
+            "Effect": "Allow",
+            "Action": [
+                "logs:CreateLogGroup",
+                "logs:CreateLogStream",
+                "logs:PutLogEvents",
+                "logs:DescribeLogStreams"
+            ],
+            "Resource": [
+                "arn:aws:logs:*:*:*"
+            ]
+        }
+    ]
+}
+\end{verbatim}
+
+\paragraph{Create Log Group/Stream}
+Next we must create an AWS CloudWatch Log Group and 2 Streams: In CloudWatch, go to Logs->Log groups.
+Click Create log group and set it's name to NitroChatbot Inside the new log group, create 2 log streams: UserLogs and RequestedAuths
+
+\paragraph{SecretsManager Authentication}
+Next go to SecretsManager within AWS, and create a new custom Secret with the following fields:
+\begin{verbatim}
+    {
+        "url": "https://netscaleraddress.com",
+        "username": "nsroot",
+        "password": "nsroot"
+    }
+\end{verbatim}
+
+Set url to the address of your netscaler hardware/instance from the relay.
+In the case of running locally or from AWS, this will be some public address username and password should be set to your credentials to access the NetScaler, nsroot/nsroot are default netscaler credentials.
+
+The name of the secret will be your Microsoft global ID in this format (all lowercase hexadecimal): 
+\begin{verbatim}
+    xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+\end{verbatim}
+
+You may choose to run a remote instance of Citrix ADC (this is a free AMI to use) within AWS to perform these operations against.
+In this case, the default username is nsroot, and the default password is the instance id (viewable within the EC2 console).
+Or you may run a version of the NetScaler software locally in a VM.
+In this case, the default credentials are nsroot/nsroot.
+
+\subsection{Running the Projects}
+From the /chatbot directory, run "npm install" to install project dependencies, and then "npm start" to start the project.
+
+In a different terminal, from the /relay directory, again run "npm install" to install the separate dependencies, and then npm start to run the project.
+
+Now open Bot Framework Emulator, and select "Open Bot" and point it to the running chatbot application: 127.0.0.1:3000/api/messages.
+Additionally, you may want to change your user id to match the name of your secret in SecretsManager.
+This is something that can be done when running locally, but not in a production environment.
+
+\subsection{Running the Tests}
+Within each of the 2 projects is the ability to run test suites.
+For our development pipeline, we have a separate Jenkins instance provisioned within AWS that automatically runs all our tests for each branch on each commit.
+Viewing the commit history will show small icons next to the commit signifying if the commit passes all tests.
+To run these tests locally you just need to navigate to the project folder and run the command "npm test".
+The result of the tests will be output to the command line.
+
+\section{Recommended Technical Resources for Learning More}
+    The Chatbot portion of this project runs with BotKit framework.
+    Their documentation can be viewed here: https://botkit.ai/docs/v4/
+    
+    The Relay uses express in order to run as a webserver.
+    Their website includes a guide to it, as well as a full reference here: https://expressjs.com/
+    
+    When working with the NetScaler through the NITRO API, their documentation is invaluable: https://developer-docs.citrix.com/projects/citrix-adc-nitro-api-reference/en/latest/
+    
+    For building the Cloudformation template used for deployment, their user guide can be very helpful, providing a full reference: https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/Welcome.html
+    
+    Unit tests for this project were written using Jasmine, for more information about it see: https://jasmine.github.io/
+
+
+\section{Conclusions and Reflections}
+\subsection{Jack Barnes}
+    First of all, I'm really proud of how the project turned out.
+    The project not only works well, but I find that the code is very readable and should be very maintainable.
+    A primary focus for our team was to not only make it work, but so that someone else could pick this up and continue to expand functionality.
+    I really like the security implementation with the TOTP keys as well.
+    
+    I really learned so much, not just about writing code in JavaScript, but about AWS and DevOps in general.
+    It was a huge challenge to develop something like this, that has so many connecting pieces.
+    I cannot count the number of hours that I found myself digging through documentation to get everything working just right.
+    
+    I'm a bit amazed at the amount of different technology, systems, and software I got to work with throughout this project.
+    In AWS alone I worked with EC2, CloudWatch Logs, SecretsManager, Cloudformation, Lambda, Route53, Certificate Manager, IAM, I tried building custom AMIs (which don't support BSD by the way), CLI, AWS-SDK, and probably more.
+    I registered and deployed a domain behind HTTPS with multiple endpoints (Jenkins, NetScaler, Chatbot, and Relay).
+    I used a remotely hosted Jenkins instance to receive web-hooks from GitHub, pull the code and run the tests, and then report the results back to GitHub.
+    I worked with Citrix ADC software, particularly the load balancer, through the web interface and via it's REST API, NITRO.
+    I registered our application with Microsoft's Azure Bot Service, which is required for Bots that run through their ecosystem of applications.
+    I really feel that I'll be able to use all this knowledge going forward.
+    
+    The software engineering portion of the Capstone project was also a challenge.
+    Project management and working together with peers in a team can be difficult, especially what you don't know what everyone will be bringing to the table.
+    I've learned to be flexible, to maintain a high level of communication, and to be an organized as possible.
+    I felt that communication with my group and with our client was vital to the groups success.
+    
+    If I has to do it all over again, knowing what I know now, I would definitely be able to come up with a slick UI for interacting with our bot.
+    This is something I really didn't even know was an option until I was to see our application running within Teams.
+    Much of my time was spent in learning and research. 
+    More time for development would've only made the end result better.
+    
+    After completing this project, I can say for certain that it's helped me to become a better developer.
+    I look forward to any and all challenges that I encounter next in my career.
+
+\subsection{Cheng Xie}
+    Overall, the senior capstone class is a very good class because it can let students know what is a project looks like and how to complete the project. In class, we are also need to work with our teammates to communicate and cultivate the team work which is also nice. This can help us to feel the real feeling in the future when we go to the company and work with colleagues.
+    
+    In our project Nitro Chatbot, my role in this project it to design a good and convenient user interface which user can use all features easily. The technical information I learned is that in an attempt to future-proof the chatbot, how to write using the Botkit Framework in Node.js. I also learned that how to use Node.js and allow the chatbot to provide quick access to the status and configuration options for the server pools that the users manage.
+    
+    I would say how to create a good format report is the non-technical information I learned in this class. In previous I always think that the format is not important and not using some technical writing format. But after done with the project, I understand the importance of using a good format in the document will let other people include yourself to read and understand the idea easily. Also the words I choose in the report is different than in other writing assignments.
+    
+    In our project work, there is many things I have learned. The most important one is teamwork. In previous, I always work alone like writing code assignments and think the team work is not important. But after finished this class, I changed my mind and think the team work is the most important factor in an engineering project. 
+    
+    I think our project management is really good because our individual part actually has connected each other. We need finish our own part on time and then we can connect them together. That helps me know how important is the time management. 
+    
+    Like I said, I learned how to communicate with teammates in our team and learn how to work with them together. I need finish my part early so other members can use my part to connect with their parts. Most important one is that when a problem need to be solved, I should not use aggressive works to chat with the teammates. We should sit down and discuss what should we do next. Then make a conclusion of that idea rather than always think myself.
+    
+    I would say if I do it all over, I would probably add some features like voice control to control our chat-bot and optimized some features like the method to connect to the server. Overall we meet all the requirements which is good enough!
+
+\subsection{Sarun Pitaksuteephong}
+    When we took the Software Engineering classes, we learn about the basics of how project development works and had a glimpse of what it is like through mini-projects.
+    Now in the Capstone classes, we are doing real projects with real clients in a guided environment.
+    Unlike the prerequisite Software Engineering classes, not only do we have to complete a project from scratch but we also have to make sure it can be handed over to the client smoothly as well.
+    
+    Before the start of this project, I have barely coded in JavaScript before so learning a new language is always nice.
+    While I have known about the development cycle for a while now, I have never really focused on the deployment part of it.
+    It really surprises me on how many tools and layers there is to this part of the cycle.
+    For example, we use Amazon Web Services (AWS) as our foundation for this project and through it, it works with Cloudformation, EC2, Amazon Lambda, Docker, and many other tools. 
+    Continuous integration, a concept we covered only in concept before this, is explored in finer details such as how to integrate it to a project and how to deploy it.
+    
+    Working as a team is usually a challenge for me and this time is no different, as communication and flexibility is key to the success of a team.
+    I think the team did well when it comes to this as everyone is very accommodating for the project.
+    I am not the best when it comes to communicating but I have tried to keep up on that wherever I can.
+    We maintained a good relationship with our client and the team overall, as we usually sit and talk on any challenges we faced along the way instead of arguing about it, which creates a good work environment.
+    
+    Overall the project went really well and is ready to be passed onto our client.
+    The code has been formatted to look clean and the documentation is well documented.
+    
+    If we have to do it again, I would do more prior research and experimentation like online labs to get a better grip on what is needed for this project.
+    As I am unfamiliar with a project's deployment, most of my time was spent doing research and reading than experimenting and development.
+    Besides that, I think having the chatbot be more predictive in nature would help the user in giving either updates or suggestion they may want to expand their options.
+    
+    This class is certainly very different from any classes before and I imagine that this is just what a real-world project looks like under a scope.
+    I still have much more to learn to master these skills I have gained from this project but it is certainly many steps in a good direction and I look forward to what the future will offer.
+
+\section{Appendix}
+\subsection{Appendix 1: Essential Code Listings}
+As stated above, Nitro Chatbot is essentially 2 separate components that work together in tandem.
+In this section, we will walk through some of essential fragments of code that allow the project to function.
+
+\subsubsection{Chatbot}
+The first component is the Chatbot itself.
+The Chatbot primarily receives input from the user via Microsoft Teams.
+It is responsible for parsing the user input, forwarding the request to the Relay, recieving the Relay's response, logging the interaction, and sending a formatted response to the user.
+
+    \paragraph{Bot Event}
+    When the chatbot is loaded and running, it processes events.
+    These event handlers are triggered based on how they are defined.
+    Within chatbot/features folder is where most of the code is written for this component.
+    Each file within the base of that folder (not it's sub-folders) is read in by the main application (bot.js).
+    
+    These events are ordered, bot alphabetically by file, and internally in the order they are written.
+    This is best exemplified by the single event in the file "bot\_unmatched\_commands.js"
+    \begin{figure}[ht]
+        \centering
+        \includegraphics[height=2cm]{code1.png}
+        \caption[Unmatched Bot Event]{This event will be triggered if the bot recieves a message, but it doesn't match any other defined event.}
+        \label{fig:Unmatched Bot Event}
+    \end{figure}
+    
+    This is the last event in the last file, triggering only when all other events aren't triggered first.
+    
+    For each basic command that the bot supports, an event is written with a regular expression that will match the event.
+    This ordering principle is also used in ordering the commands, with the event for "list" coming after "listall" and "listbound".
+    This allows a slightly more relaxed regular expression that will, in return, generate more precise error messages upon parsing the message.
+    
+    The first event in "bot\_relay\_commands.js" is for the listall commands:
+    \begin{figure}[ht]
+        \centering
+        \includegraphics[height=3cm]{code2.png}
+        \caption[Event For listall]{This event will be triggered when the message matches the Regex}
+        \label{fig:Event For listall}
+    \end{figure}
+
+    Each event has similar formatting, performing the same sequence of actions.
+    The first is get\_user(message), which pulls the unique id for the user from the message object.
+    The next actions are wrapped in a try-catch block.
+    This is because both make\_cmd and http\_relay are designed to throw an error with a descriptive string that can be sent directly to the user.
+
+    \paragraph{Making the Command Object}
+    Within make\_cmd (at chatbot/features/lib/cmd/make\_cmd.js), each command's requirements are defined by the functions it calls with it's input.
+    The purpose of this library is to return an object that is standardized for the relay to understand, and free from bad inputs that the user may give.
+    
+    \begin{figure}[ht]
+        \centering
+        \includegraphics[height=2cm]{code3.png}
+        \caption[Make\_Cmd for listall]{This library function produces the standardized command object that they relay expects}
+        \label{fig:Make_Cmd For listall}
+    \end{figure}
+
+    Each of these library functions calls of set of functions contained within cmd\_lib.js.
+    This allows each function to throw a descriptive error back to our triggered event, and pass the error to the user.
+    Each function called from here has a set of tests to assure their proper operation.
+    In this example function you can see that the only requirement is that the message have a single term (the command name itself).
+    
+    \paragraph{HTTP to Relay}
+    The next function that the event will call is from chatbot/features/util/http\_relay.js.
+    Here, axios, an external module, will create a POST request to the base url set from the environment variable RELAY\_URL.
+    The request body takes this form:
+    
+    \begin{figure}[ht]
+        \centering
+        \includegraphics[height=2cm]{code4.png}
+        \caption[Request Body to Relay]{This request object is used as the request body to the Relay from the Chatbot}
+        \label{fig:Request Body to Relay}
+    \end{figure}
+
+    Here the user sub-object contains the requesting user's information.
+    The command sub-object contains the relevant information about the request.
+    
+    TOTP is a 6 digit number that's generated by a symmetric key which both the Chatbot and Relay are given during deployment.
+    This TOTP key is generated from using the RFC 6238 standard, and relies on code written for the totp-generator 0.0.7 (available here: https://github.com/bellstrand/totp-generator).
+    Our use of the code wraps the library in an object that pre-stores the symmetric key so we don't need to pass it in every time we generate a new key.
+    
+    TOTP works by using a secret key and the current time to generate a different key every 30 seconds.
+    This allows the Relay to authenticate requests from the Chatbot, while making guessing the correct key within the time-limit very difficult for any potential attacker.
+    An idea for an improvement to this scheme is available in Appendix 2.
+    
+    \begin{figure}[ht]
+        \centering
+        \includegraphics[height=12cm]{code5.png}
+        \caption[Sending Request to the Relay]{This call using axios handles the logic for how responses are processed.}
+        \label{fig:Sending Request to the Relay}
+    \end{figure}
+    
+    When sending the request to the relay there are 4 possible results.
+    The first result is that the call is successful (meaning the relay responded with the request with some 2xx status code).
+    In this case the result is logged, and the result is returned to the chatbot.
+    
+    The second case is an error response sent back from the relay.
+    This interaction is also logged, and the result is returned to the chatbot.
+    
+    The third and forth cases are either the Relay didn't respond, or that there was some unexpected error sending the request.
+    In these cases, the result is not logged, but is still returned to the chatbot.
+    
+    \paragraph{Responding to the User}
+    After the result is received from http\_relay,  bot.reply is called to reply to the user who sent the command.
+    This is a function provided by the chatbot framework, BotKit.
+    The second parameter is the message we wish to reply with.
+    The format it for the user, we use chatbot/features/util/pretty\_print\_json.js.
+    
+    \begin{figure}[ht]
+        \centering
+        \includegraphics[height=3.5cm]{code6.png}
+        \caption[Processing the Relay's Response]{This pretty-print function processes the output and to string that formats nicely in Microsoft Teams}
+        \label{fig:Processing the Relay's Response}
+    \end{figure}
+    
+    Here we use some regex to strip out some characters and apply some simple formatting.
+    Processing the text in this way lets the Relay send any information back that it wants, allowing the developer to add or remove fields from the response without worrying about frontend processing.
+    It is trivial to add or remove fields from each status command (the result being different for each resource-type).
+
+\subsubsection{Relay}
+    The second project component is the Relay.
+    The Relay is responsible for authenticating the user, sending a request to the NetScaler, and responding to the Chatbot.
+    
+    \paragraph{Middleware}
+    The relay runs as an express server, utilizing custom middleware to process every request.
+    Each different command sent by the user triggers a different route, but utilizing middleware allows for common processing to be abstracted from the route itself.
+    
+    \begin{figure}[ht]
+        \centering
+        \includegraphics[height=8cm]{code7.png}
+        \caption[Middleware for Relay]{This is all the middleware that is utilized by the relay}
+        \label{fig:Middleware for Relay}
+    \end{figure}
+    
+    First, auth\_mw attempts to authenticate the user ID against our list of authenticated users in AWS Secrets Manager.
+    Next the TOTP key is tested, if the key is valid then the request is processed further.
+    Otherwise nothing else will happen (see Appendix 2 for improvements to this ordering).
+    
+    The last line of this figure using the credentials gathered in auth\_mw to authenticate with the Netscaler, storing a session token in a new instance of our nitro library.
+    This methodology saves the authenticated instance of the library as a sub-object of the request.
+    This lets the written routes for the Relay to avoid handling the token directly.
+    
+    \paragraph{Routes}
+    \begin{figure}[ht]
+        \centering
+        \includegraphics[height=3cm]{code8.png}
+        \caption[Relay's Route Logic]{This is the logic for the api/listall route on the Relay}
+        \label{fig:Relay's Route Logic}
+    \end{figure}
+    Each route implementation has been made very simple in an effort to improve readability.
+    Before any body of the route is run however, validate verifies the body has the correct structure.
+    This is through the use of the JSON Schema files (contained at relay/schema/).
+    The schema files allow for the request body to be verified and assured that they contain valid values.
+    In order to support more commands, another schema file will need to be created to match the needs of the command.
+    
+    Each use of the nitro library functions is always wrapped in a try-catch block.
+    This is because the nitro library will always throw errors when it encounters problems, such as requesting the NetScaler for resources that don't exist.
+    In the catch block, next(e) is called.
+    This is functionality within express that lets us pass an error to an error handling function.
+    
+    \paragraph{Handling Errors with Express}
+    \begin{figure}[ht]
+        \centering
+        \includegraphics[height=6cm]{code9.png}
+        \caption[Handling Errors]{This is the special route that we can call by passing a value to next()}
+        \label{fig:Handling Errors}
+    \end{figure}
+    
+    This function has been design to capture 2 types of errors.
+    The first error is a Validation Error, this is generated by the schema validation middleware library that we are using.
+    The second error is a NitroError, which is a standardized error object that we've written to represent all errors.
+    When encountering an error, the Nitro library will generate an object of this time and throw it.
+    We then catch it with out use of try-catch blocks.
+    This allows all error to produce custom error messages and status codes to most accurate represent the error that occurred.
+    
+    \paragraph{Nitro Library}
+    All of this code is contained within the directory relay/lib/nitro.
+    The base file, nitro.js provides the access interface for the relay to use.
+    All logic required to complete each of these commands has been pushed to this level, or into one of the child files (nitro\_util.js, nitro\_list.js, and nitro\_list\_all.js).
+    
+    \begin{figure}[ht]
+        \centering
+        \includegraphics[height=6cm]{code10.png}
+        \caption[Get Resource Status]{This function is called when issuing the status command. It generates multiple calls to the NetScaler}
+        \label{fig:Get Resource Status}
+    \end{figure}
+    
+    In this internal function, getResourceStatusByName, first the library must attempt to find the resource only by name.
+    This works because each resource name on the NetScaler must have a unique name.
+    Knowing this, we can use the findResource function, which generates 4 different calls, enumerating all the names of each of the 4 types of resources we are dealing with (vserver, servicegroup, service, and server).
+    Using that we can call the appropriate function.
+    
+    \begin{figure}[ht]
+        \centering
+        \includegraphics[height=6cm]{code11.png}
+        \caption[Nitro Library Function]{serverListStats makes the actual call to the NetScaler, using it's REST API, NITRO}
+        \label{fig:Nitro Library Function}
+    \end{figure}
+    
+    If you were to query the status of a server resource, eventually this function will be called.
+    The actual fields that we return to the user are set here.
+    First we set the fields as query parameters in the url, and then again in the output object we return.
+    We can also set friendly names here, as this is what the user will eventually see.
+    
+    In the event of an error, we create a NitroError object from a class using new.
+    This is what lets us use instanceof to check for errors, instead throwing the output to be caught by the error route.
+    This methodology was used to avoid passing around error flags or check for incomplete responses at a highly level.
+    
+    From here, results are passed all the way back to the user to see from within Microsoft Teams.
+
+\subsection{Appendix 2: Further Work}
+\subsubsection{Remaining Bugs}
+    Unfortunately some small bugs still exist with the system as it stands today.
+    
+    The first bug is that the chatbot doesn't properly respond when enabling or disabling resources.
+    This is likely to be a very small bug and would have been fixed if it were noticed before the team's deadline.
+    This bug had previously occurred and was fixed with some simple logic updating in the pretty-print function that is used by the Chatbot.
+    
+    The second bug is a bit larger.
+    Within the current implementation, the timed delay for disable doesn't appear to be working as expected.
+    While the nitro library appears to be using the disable route correctly, an error may still persist.
+    However, this may also not be a bug, and could actually be expected behavior of the NetScaler (as we only used one without traffic).
+    Careful examination of this functionality is recommended to any future developer.
+
+\subsubsection{Adding a New Command}
+    A major focus of the final project refactoring, was to make it expandable with more commands.
+    Here I'll list each file and describe the revision.
+    For the most part, following the flow through an existing command should help anyone unfamiliar with the project's code.
+    
+    \paragraph{Chatbot}
+    First bot\_relay\_commands.js will need to have an event created for the next command.
+    Substitute in the name of the new command in the regular expression for the event, for the called function within make\_cmd and the destination url in the first parameter of the http\_relay.post() call.
+    
+    Next make\_cmd.js needs to have a function added for your new command.
+    You can copy and existing one and modify based on the requirements you wish to set for the command.
+    
+    Next go to usage.js and add in your next command into the usage object following the template of the existing commands.
+    
+    Now go to cmd\_lib.js, in here you'll need to add your new command to the list of available commands in test\_command\_param(). This will let the user request the help text for your new command directly.
+    
+    \paragraph{Relay}
+    In the main project file, relay.js create a new route by copying an existing one, and changing the target to the same url you set in the chatbot.
+    Change the target schema name to the new schema you'll be creating.
+    Also update the nitro function call to the name of the new function you'll be creating.
+    
+    To make a new schema file, copy and existing one and make any required changes to match the data you need to send from the chatbot (which you've already set in the make\_cmd function).
+    
+    Now navigate to nitro.js and create the new function you've already named in relay.js.
+    From here you'll have to program the needed logic for your new custom command based on the existing functions (start by copying one and modifying to suit your use-case).
+    It's highly recommended to have the NITRO API documentation open for reference, and potentially some tool like Postman to test requests before coding them.
+
+\subsubsection{Improving Security/TOTP}
+    The first suggestion for improving security would be to place the TOTP middleware within the relay project first, so that it is the first test that is run. This could be a security issue when run in production.
+    
+    The next suggestion would be to increase the size of the TOTP key that is used.
+    A six digit code is very small in terms of security, even with it refreshing every 30 seconds.
+    A determined third party with enough information of the system is likely to find a way to defeat this security given time.
+    There is likely better methodology to assure that only the Chatbot communicates with the Relay.
+    
+    That said, the TOTP system is a nice solution to the problem that the team encountered.
+    One way to improve it would be to expand the size of the key.
+    This could be done with a small modification to the totp\_gen\_mod.js file.
+    This tactic would be worth investigation.
+
+\subsection{Appendix 3: Code Review Critiques and Responses}
+\subsubsection{Fixed Bugs}
+During the live demo of the code review, I spotted 2 small production errors that have been resolved.
+\begin{enumerate}
+    \item Angle brackets not showing on the usage message command: help
+    \item The Teams Linux client was unable to pass the schema tests on the relay.
+\end{enumerate}
+
+\subsubsection{Feedback Forms}
+As a team, we received a total of 3 feedback forms.
+The feedback was overwhelmingly positive, and contained very little correction or potential improvements.
+Here I will discuss the feedback we received so as to assure the grader that we've carefully considered the feedback.
+\paragraph{More Comments?}
+One suggestion that we received was to further comment the code, especially parts dealing with authentication and other external requests.
+As a result of this feedback we've added (or modified) 84 lines of comments to our code.
+\paragraph{Fuzz Testing?}
+The other only suggestion we received was for fuzz testing.
+This was suggested by 2 people, to presumably, test routes and other forms of input.
+As we discussed during our code review, we didn't think it was feasible to implement this in a way that would provide meaningful information at this point.
+But, allow me to explain the project and our thought process here (apologies if the explanation is a bit long-winded).
+
+Essentially, in production, the chatbot will only receive input from Microsoft, as it handles the messages sent from users.
+The chatbot itself is registered with Microsoft and uses an application ID and password given by Microsoft.
+The chatbot component of the project is built with BotKit.
+Tests down this path would either be testing Microsoft, or the framework, BotKit, itself (owned by Microsoft).
+However, user input itself is thoroughly tested and carefully sanitized.
+
+The second target of additional testing could be the Relay itself.
+However, our system employs a shared symmetric key, and verifies the key with each request by use of a 6-digit TOTP password that rolls over every 30 seconds.
+Every request that doesn't match a current key is discarded.
+
+Additionally all requests that do reach the relay must exactly match the json schemas designed for each request. This includes careful regex matching.
+UserIDs are then matched against a database, and credentials for only that user are retrieved and never stored within the relay.
+
+With this system, we find that while additional testing may be possible (essentially customized end-to-end testing), it's simply not worth the time it would take for us to implement.
+
+\subsubsection{Requirements Met}
+All feedback we received during the code review agree that our project meets the requirements given in the updated version of the requirements document.
+
+\subsubsection{Deployment}
+Although not this is not a strict requirement set forth in the requirements document, we know that our client would like to see a Cloudformation template that accurately describes our AWS configuration.
+To this end, the final submission to our repository before code freeze is within a new folder "deployment".
+This contains a json file to be used to deployment the required resources and standup the instances required to use our project.
+
+That's it for our code review response. Thanks!
+
+\clearpage
+\subsection{Appendix 4: Feature Implementation Timeline}
+\begin{figure}[ht]
+    \centering
+    \includegraphics[height=15cm]{gantt-v2.png}
+    \caption[Feature implementation timeline]{This is the actual development time for Nitro Chatbot.}
+    \label{fig:Feature implementation Timeline}
+\end{figure}
+
+\clearpage
+\bibliographystyle{IEEEtran}
+\bibliography{all}
+
+\end{document}
